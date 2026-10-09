@@ -22,12 +22,12 @@
     <form id="emailForm" style="display:grid;gap:12px" novalidate>
       <h2>1. Your email address</h2>
       <label class="f">Email address <input type="email" id="email" placeholder="kwame@gmail.com" autocomplete="email"></label>
-      <p class="hint">We send a 6-digit code to confirm it. You will use this email to sign in to the driver app.</p>
+      <p class="hint">We send a code to confirm it. You will use this email to sign in to the driver app.</p>
       <button class="btn btn-dark btn-block" type="submit">Send code</button>
     </form>
     <form id="codeForm" style="display:grid;gap:12px" novalidate hidden>
       <h2>1. Your email address</h2>
-      <label class="f"><span id="codeLabel">6-digit code from your email</span> <input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+      <label class="f"><span id="codeLabel">Code from your email</span> <input id="code" inputmode="numeric" maxlength="10" autocomplete="one-time-code"></label>
       <button class="btn btn-dark btn-block" type="submit">Confirm</button>
     </form>
 

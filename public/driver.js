@@ -59,7 +59,7 @@ $('#phoneForm').addEventListener('submit', async (e) => {
     : { phone, options: { shouldCreateUser: false } });
   if (error) return showErr('#signErr', codeError(error));
   pending = email ? { email, type: 'email' } : { phone, type: 'sms' };
-  $('#codeLabel').textContent = email ? `6-digit code sent to ${email}` : '6-digit code sent by SMS';
+  $('#codeLabel').textContent = email ? `Code sent to ${email}` : 'Code sent by SMS';
   showErr('#signErr', '');
   $('#phoneForm').hidden = true; $('#codeForm').hidden = false; $('#code').focus();
 });

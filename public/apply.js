@@ -30,7 +30,7 @@ $('#emailForm').addEventListener('submit', async (e) => {
   const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
   if (error) return showErr(codeError(error));
   pendingEmail = email;
-  $('#codeLabel').textContent = `6-digit code sent to ${email} (check spam too)`;
+  $('#codeLabel').textContent = `Code sent to ${email} (check spam too)`;
   step('#codeForm'); $('#code').focus();
 });
 

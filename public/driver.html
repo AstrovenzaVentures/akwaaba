@@ -20,11 +20,11 @@
     <h2>Driver sign in</h2>
     <form id="phoneForm" style="display:grid;gap:12px" novalidate>
       <label class="f">Email address <input type="email" id="phone" placeholder="kwame@gmail.com" autocomplete="email"></label>
-      <p class="hint">Use the email address you registered with. We send a 6-digit sign-in code to it.</p>
+      <p class="hint">Use the email address you registered with. We send a sign-in code to it.</p>
       <button class="btn btn-dark btn-block" type="submit">Send code</button>
     </form>
     <form id="codeForm" style="display:grid;gap:12px" novalidate hidden>
-      <label class="f"><span id="codeLabel">6-digit code from your email</span> <input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+      <label class="f"><span id="codeLabel">Code from your email</span> <input id="code" inputmode="numeric" maxlength="10" autocomplete="one-time-code"></label>
       <button class="btn btn-dark btn-block" type="submit">Sign in</button>
     </form>
     <p class="err" id="signErr" hidden></p>
