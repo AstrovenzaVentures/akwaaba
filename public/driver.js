@@ -87,7 +87,9 @@ function renderSub() {
       <span class="label">Monthly subscription · GHS 100</span>
       <strong style="font-family:var(--display);font-size:22px;text-transform:uppercase">${active ? 'Active' : 'Not active'}</strong>
       <span class="hint">${active ? `Paid until ${until.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}. You keep 100% of every fare.`
-        : 'You will not receive pickups until you pay.'}${d.status !== 'approved' ? ' Your account is waiting for approval.' : ''}</span>
+        : 'You will not receive pickups until you pay.'}${d.status === 'pending_review'
+        ? ' Your application is waiting for approval. Contact astrovenzav@gmail.com to arrange your document check; you can pay once approved.'
+        : d.status === 'suspended' ? ' Your account is suspended. Contact astrovenzav@gmail.com.' : ''}</span>
     </div>
     <button class="btn ${active ? 'btn-ghost' : 'btn-sign'}" id="payBtn" type="button" ${d.status !== 'approved' ? 'disabled' : ''}>${active ? 'Pay next month' : 'Pay GHS 100'}</button>`;
   $('#payBtn').addEventListener('click', async () => {
@@ -166,7 +168,7 @@ async function start() {
   $('#signIn').hidden = true;
   $('#appArea').hidden = false;
   try { await load(); }
-  catch (err) { showErr('#appErr', err.message === 'Sign in as a driver.' ? 'This number is not registered as an Akwaaba driver.' : err.message); return; }
+  catch (err) { showErr('#appErr', err.message === 'Sign in as a driver.' ? 'This email is not registered as an Akwaaba driver yet. Apply at akwaabaaapp.vercel.app/apply.' : err.message); return; }
   const next = data.privacy.acknowledged && (data.trips.find((t) => !['done', 'no_show'].includes(t.status)) || data.trips[0]);
   if (next) selectTrip(next.code);
   setInterval(() => load().catch(() => {}), 60000); // pick up new pickups every minute

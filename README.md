@@ -2,6 +2,16 @@
 
 Pre-booked airport pickups in Ghana from **Kotoka International Airport, Accra (ACC)** and **Prempeh I International Airport, Kumasi (KMS)**. A service of **Astrovenza Ventures** (astrovenzav@gmail.com).
 
+## Driver sign-up and approval
+
+1. A driver applies at **`/apply`**: confirms their email with a 6-digit code, enters name, WhatsApp number, vehicle, plate and base airport, and gives written consent to vetting checks. Their account is created as **waiting for approval**.
+2. Staff open **`/staff`** (email, password and authenticator code), see the application, check the original documents in person, tick the five checks (Ghana Card, driver's licence, DVLA ride-hailing registration, police clearance, vehicle papers) and click **Approve**. Each check is recorded in `driver_vetting`, results only. Staff can also decline, suspend and reinstate; every action goes into `audit_log` with the reason.
+3. The approved driver signs in at **`/driver`**, taps **Pay GHS 100** and starts receiving pickups for their vehicle at their base airport. Until approved, the Pay button is locked and the database gives them no bookings.
+
+Staff accounts: create the user with a password in Supabase **Authentication > Users**, then run
+`insert into staff (user_id, role) select id, 'admin' from auth.users where email = 'astrovenzav@gmail.com';`
+The authenticator app is set up on the first `/staff` sign-in (scan the QR code).
+
 ## Money model
 
 - **Travellers book for free and pay the driver directly when they meet**, in cash or by mobile money to the driver's own number. No advance payment, no deposit.
@@ -129,4 +139,4 @@ Email requests go to astrovenzav@gmail.com. Log each one in `dsar_requests` and 
 - **Night surcharge** (20%, landings 22:00 to 04:59) uses the scheduled landing time the traveller enters. A flight-status service can replace this later.
 - **Areas not on the list:** travellers pick the nearest listed area. Add areas to `zone_fares` as requests come in.
 - **Another airport later** (for example Tamale or Takoradi): add a row to `airports`, its zones to `zone_fares`, drivers with that `base_airport`, and a button on the booking page.
-- **Not built yet:** driver self-registration, the staff Operations web app (bookings overview, fares, areas, driver approval), cancellations, SMS notifications, and the traveller phone check above.
+- **Not built yet:** the rest of the staff web app (bookings overview, fares, areas), cancellations, SMS notifications, and the traveller phone check above.
