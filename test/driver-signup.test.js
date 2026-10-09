@@ -38,7 +38,7 @@ mock.module('../lib/db.js', { namedExports: { db: () => ({ from }) } });
 mock.module('../lib/auth.js', { namedExports: { signedInUser: async () => user, requireDriver: async () => null, requireStaff: async () => staff } });
 
 const { POST: apply } = await import('../api/drivers/apply.js');
-const { POST: setStatus } = await import('../api/staff/driver-status.js');
+const { POST: setStatus } = await import('../api/staff/drivers.js');
 const { GET: list } = await import('../api/staff/drivers.js');
 const req = (body) => new Request('http://x/api', { method: 'POST', body: JSON.stringify(body) });
 const ALL = ['ghana_card', 'drivers_licence', 'dvla_ride_hailing', 'police_clearance', 'vehicle_roadworthy'];

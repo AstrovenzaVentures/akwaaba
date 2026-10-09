@@ -153,7 +153,7 @@ $('#ackBtn').addEventListener('click', async () => {
   }
   $('#ackBtn').disabled = true;
   try {
-    await api('/api/drivers/consent', { method: 'POST', body: JSON.stringify({
+    await api('/api/drivers/trips', { method: 'POST', body: JSON.stringify({
       privacy_version: data.privacy.version, privacy_notice: true, vetting: true, marketing: $('#ackMarketing').checked
     }) });
     showErr('#ackErr', '');

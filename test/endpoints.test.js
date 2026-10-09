@@ -28,7 +28,7 @@ mock.module('../lib/auth.js', { namedExports: { requireDriver: async () => drive
 
 const { POST: book } = await import('../api/bookings/initialize.js');
 const { GET: trips } = await import('../api/drivers/trips.js');
-const { POST: consent } = await import('../api/drivers/consent.js');
+const { POST: consent } = await import('../api/drivers/trips.js');
 const { encryptField, blindIndex } = await import('../lib/pii-crypto.js');
 
 const future = new Date(Date.now() + 5 * 864e5).toISOString().slice(0, 10);

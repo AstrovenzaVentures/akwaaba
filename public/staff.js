@@ -93,7 +93,7 @@ $('#appArea').addEventListener('click', async (e) => {
   let note = '';
   if (action !== 'approve') { note = prompt(`Reason (${action === 'reinstate' ? 'reinstating' : 'declining or suspending'}), kept in the audit log:`) ?? null; if (note === null) return; }
   btn.disabled = true;
-  try { await api('/api/staff/driver-status', { method: 'POST', body: JSON.stringify({ driver_id: box.dataset.id, action, checks, note }) }); showErr('#appErr', ''); await load(); }
+  try { await api('/api/staff/drivers', { method: 'POST', body: JSON.stringify({ driver_id: box.dataset.id, action, checks, note }) }); showErr('#appErr', ''); await load(); }
   catch (err) { showErr('#appErr', err.message); btn.disabled = false; }
 });
 
