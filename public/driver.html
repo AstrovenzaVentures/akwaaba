@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Akwaaba Driver</title>
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/styles.css">
+<script src="/vendor/supabase.js"></script>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
+    <div><h1>Akwaaba Driver</h1><p>Your pickups and subscription</p></div>
+  </header>
+
+  <!-- Sign in with phone number and SMS code -->
+  <section class="panel" id="signIn" style="max-width:440px;width:100%;margin:0 auto" hidden>
+    <h2>Driver sign in</h2>
+    <form id="phoneForm" style="display:grid;gap:12px" novalidate>
+      <label class="f">Email address <input type="email" id="phone" placeholder="kwame@gmail.com" autocomplete="email"></label>
+      <p class="hint">Use the email address you registered with. We send a 6-digit sign-in code to it.</p>
+      <button class="btn btn-dark btn-block" type="submit">Send code</button>
+    </form>
+    <form id="codeForm" style="display:grid;gap:12px" novalidate hidden>
+      <label class="f"><span id="codeLabel">6-digit code from your email</span> <input id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+      <button class="btn btn-dark btn-block" type="submit">Sign in</button>
+    </form>
+    <p class="err" id="signErr" hidden></p>
+  </section>
+
+  <!-- Shown once per privacy notice version, before the driver's pickups -->
+  <section class="panel" id="privacyCard" style="max-width:640px;width:100%;margin:0 auto" hidden>
+    <h2>Before you start</h2>
+    <div class="consent">
+      <p>Akwaaba shares your name, car, registration plate and WhatsApp number with each traveller you are assigned, so they can find and contact you. You see your passenger's name, phone number and drop-off address. Passenger details disappear from Akwaaba 90 days after the trip. Your account and trip history are kept while you drive with us and for 2 years after. <a href="/privacy" target="_blank" rel="noopener">Read the full privacy policy</a></p>
+      <label class="check"><input type="checkbox" id="ackNotice"> <span>I have read the privacy notice. <small>(required)</small></span></label>
+      <label class="check"><input type="checkbox" id="ackVetting"> <span>I agree that Akwaaba may check my Ghana Card, driver's licence, DVLA registration and police clearance, and keep the results (not copies of the documents) while I drive with Akwaaba and for 2 years after. <small>(required to receive pickups)</small></span></label>
+      <label class="check"><input type="checkbox" id="ackMarketing"> <span>Send me news and offers from Akwaaba by SMS or email. <small>(optional)</small></span></label>
+    </div>
+    <p class="hint">You can withdraw your consent at any time by emailing astrovenzav@gmail.com. If you withdraw consent to vetting checks, we can no longer send you pickups.</p>
+    <button class="btn btn-dark btn-block" id="ackBtn" type="button">Continue</button>
+    <p class="err" id="ackErr" hidden></p>
+  </section>
+
+  <div id="appArea" hidden style="display:grid;gap:18px">
+    <div class="sub" id="subCard"></div>
+
+    <div class="note"><strong>Fares:</strong> passengers pay you directly when you meet them, in cash or by mobile money to your own number. You keep the whole fare. Akwaaba only charges the GHS 100 monthly subscription.</div>
+
+    <div class="grid2">
+      <section class="panel">
+        <h2>Your pickups</h2>
+        <div id="trips" style="display:grid;gap:10px"></div>
+      </section>
+      <section class="panel" id="tripPanel">
+        <h2 id="tripTitle">Pickup details</h2>
+        <div id="tripDetail" class="note">Select a pickup to see the details.</div>
+        <div class="actions" id="tripActions"></div>
+        <p class="hint">The passenger sends their exact drop-off location to your WhatsApp. Open it there to start Google Maps navigation.</p>
+      </section>
+    </div>
+    <button class="btn btn-ghost" id="signOut" type="button">Sign out</button>
+  </div>
+  <p class="err" id="appErr" hidden></p>
+  <footer>Akwaaba is a service of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
+</div>
+<script type="module" src="/driver.js"></script>
+</body>
+</html>

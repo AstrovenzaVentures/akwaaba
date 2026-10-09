@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Akwaaba Airport Rides</title>
+<meta name="description" content="Pre-booked pickups from Kotoka (Accra) and Prempeh I (Kumasi) international airports. Fixed fares, pay your driver on arrival.">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
+    <div><h1>Akwaaba</h1><p>Pre-booked airport pickups in Accra and Kumasi</p></div>
+  </header>
+
+  <div class="grid2" id="bookingArea">
+    <form class="panel" id="bookForm" novalidate>
+      <h2>Book your pickup</h2>
+      <div>
+        <span class="label">Landing at</span>
+        <div class="choices pay" id="airports" style="margin-top:8px">
+          <label class="choice"><input type="radio" name="airport" value="ACC" checked><b>Accra</b><small>Kotoka International Airport (ACC)</small></label>
+          <label class="choice"><input type="radio" name="airport" value="KMS"><b>Kumasi</b><small>Prempeh I International Airport (KMS)</small></label>
+        </div>
+      </div>
+      <div class="fields">
+        <label class="f">Flight number <input id="flight" placeholder="ET 921" autocomplete="off" required></label>
+        <label class="f">Arrival date <input type="date" id="arrivalDate" required></label>
+        <label class="f">Scheduled landing time <input type="time" id="arrivalTime" required></label>
+        <label class="f">Passengers <select id="pax"></select></label>
+        <label class="f">Drop-off area <select id="area"><option value="">Loading areas…</option></select></label>
+        <label class="f">Address or nearby landmark <input id="address" placeholder="e.g. Labadi Beach Hotel" autocomplete="street-address"></label>
+        <p class="hint full">After booking, send your exact location to your driver on WhatsApp. We give you their number and a ready-made message.</p>
+      </div>
+
+      <div>
+        <span class="label">Vehicle</span>
+        <div class="choices" id="vehicles" style="margin-top:8px">
+          <label class="choice"><input type="radio" name="vehicle" value="sedan" checked><b>Sedan</b><small>Up to 3 people, 3 bags</small></label>
+          <label class="choice"><input type="radio" name="vehicle" value="suv"><b>SUV</b><small>Up to 4 people, 5 bags</small></label>
+          <label class="choice"><input type="radio" name="vehicle" value="van"><b>Van</b><small>Up to 7 people, 10 bags</small></label>
+        </div>
+      </div>
+      <label class="f">Checked bags <input type="number" id="bags" min="0" max="10" value="2"></label>
+
+      <div>
+        <span class="label">Extras</span>
+        <div style="display:grid;gap:8px;margin-top:8px">
+          <label class="check"><input type="checkbox" name="extra" value="meet"> Meet inside the arrivals hall (+GHS 50)</label>
+          <label class="check"><input type="checkbox" name="extra" value="child"> Child seat (+GHS 40)</label>
+          <label class="check"><input type="checkbox" name="extra" value="stop"> One extra stop on the way (+GHS 60)</label>
+        </div>
+      </div>
+
+      <div class="fields">
+        <label class="f">Lead passenger name <input id="name" autocomplete="name" required></label>
+        <label class="f">Phone <input type="tel" id="phone" autocomplete="tel" placeholder="024 411 2087" required></label>
+        <label class="f full">Email (optional) <input type="email" id="email" autocomplete="email"></label>
+      </div>
+    </form>
+
+    <section class="panel" aria-live="polite">
+      <h2>Your fare</h2>
+      <div id="tripBoard" class="note">Choose your drop-off area to see the fare.</div>
+      <div class="quote" id="quote"></div>
+      <div class="consent" id="consent">
+        <p>We use your name, phone number and trip details to arrange your pickup. Your driver will see your name, phone number and drop-off address. We keep these details for 90 days after your trip. <a href="/privacy" target="_blank" rel="noopener">Privacy policy</a></p>
+        <label class="check"><input type="checkbox" id="adult"> <span>I am 18 or over. <small>(required)</small></span></label>
+        <label class="check"><input type="checkbox" id="marketing"> <span>Send me occasional offers from Akwaaba by email or SMS. You can stop at any time. <small>(optional)</small></span></label>
+      </div>
+      <p class="err" id="err" hidden></p>
+      <button class="btn btn-sign btn-block" id="bookBtn" type="button" disabled>Book pickup</button>
+      <div class="note">
+        <strong>No payment now.</strong> Booking is free. Pay your driver the fixed fare when you meet, in cash or by mobile money to the driver.
+        Your driver keeps the whole fare. Free waiting: 60 minutes after your flight lands.
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" id="doneArea" hidden>
+    <span class="label">Booking confirmed</span>
+    <div class="code" id="doneCode"></div>
+    <div id="doneText"></div>
+    <button class="btn btn-ghost" type="button" id="againBtn">Book another pickup</button>
+  </section>
+
+  <footer>Akwaaba is a service of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
+</div>
+<script type="module" src="/book.js"></script>
+</body>
+</html>

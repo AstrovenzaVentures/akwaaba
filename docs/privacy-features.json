@@ -1,0 +1,10 @@
+{
+  "_help": "Switch a feature on only when it is live in the app. The build then publishes its privacy policy clauses. See docs/privacy-policy.md.",
+  "encryption": true,
+  "gps": false,
+  "idv": false,
+  "masking": false,
+  "flights": false,
+  "sms": false,
+  "email": false
+}
