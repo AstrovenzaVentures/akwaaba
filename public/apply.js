@@ -2,6 +2,15 @@ import { loadConfig, esc } from '/common.js';
 
 const $ = (s) => document.querySelector(s);
 let sb, session, privacyVersion;
+// Plain-words reason for a failed code request, with Supabase's own message for diagnosis.
+function codeError(error) {
+  const m = error?.message || '';
+  if (/rate|seconds|too many/i.test(m)) return 'Please wait a minute before asking for another code.';
+  if (/signups? (not allowed|disabled)/i.test(m)) return 'New sign-ups are switched off. Contact astrovenzav@gmail.com.';
+  if (/sending|smtp|email.*(send|deliver)/i.test(m)) return `We could not send the email right now. Please try again shortly. (${m})`;
+  return `We could not send a code to that address. Check it and try again. (${m})`;
+}
+
 const showErr = (msg) => { $('#err').textContent = msg || ''; $('#err').hidden = !msg; };
 const step = (id) => { for (const s of ['#emailForm', '#codeForm', '#applyForm', '#done']) $(s).hidden = s !== id; showErr(''); };
 
@@ -19,7 +28,7 @@ $('#emailForm').addEventListener('submit', async (e) => {
   const email = $('#email').value.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return showErr('Enter a valid email address.');
   const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-  if (error) return showErr(/rate|seconds/i.test(error.message) ? 'Please wait a minute before asking for another code.' : 'We could not send a code to that address. Check it and try again.');
+  if (error) return showErr(codeError(error));
   pendingEmail = email;
   $('#codeLabel').textContent = `6-digit code sent to ${email} (check spam too)`;
   step('#codeForm'); $('#code').focus();

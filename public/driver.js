@@ -18,6 +18,15 @@ const AIRPORT_NAV = {
 const AIRPORT_NAME = { ACC: 'Kotoka, Accra', KMS: 'Prempeh I, Kumasi' };
 
 let sb, session, data, selected;
+// Plain-words reason for a failed code request, with Supabase's own message for diagnosis.
+function codeError(error) {
+  const m = error?.message || '';
+  if (/rate|seconds|too many/i.test(m)) return 'Please wait a minute before asking for another code.';
+  if (/signups? (not allowed|disabled)/i.test(m)) return 'New sign-ups are switched off. Contact astrovenzav@gmail.com.';
+  if (/sending|smtp|email.*(send|deliver)/i.test(m)) return `We could not send the email right now. Please try again shortly. (${m})`;
+  return `We could not send a code to that address. Check it and try again. (${m})`;
+}
+
 
 const showErr = (el, msg) => { $(el).textContent = msg || ''; $(el).hidden = !msg; };
 function normPhone(p) {
@@ -48,9 +57,7 @@ $('#phoneForm').addEventListener('submit', async (e) => {
   const { error } = await sb.auth.signInWithOtp(email
     ? { email, options: { shouldCreateUser: false } }
     : { phone, options: { shouldCreateUser: false } });
-  if (error) return showErr('#signErr', /rate|seconds/i.test(error.message)
-    ? 'Please wait a minute before asking for another code.'
-    : 'We could not send a code. Check it is the email address you registered with.');
+  if (error) return showErr('#signErr', codeError(error));
   pending = email ? { email, type: 'email' } : { phone, type: 'sms' };
   $('#codeLabel').textContent = email ? `6-digit code sent to ${email}` : '6-digit code sent by SMS';
   showErr('#signErr', '');
