@@ -10,7 +10,10 @@ const T = { drivers: [], airports: [{ code: 'ACC', active: true }, { code: 'KMS'
 let nextId = 1;
 function from(table) {
   const f = {}; let op = 'select'; let patch;
-  const rows = () => (T[table] || []).filter((r) => Object.entries(f).every(([k, v]) => (Array.isArray(v) ? v.includes(r[k]) : r[k] === v)));
+  const source = () => table === 'consent_current'
+    ? Object.values(T.consent_events.reduce((m, r) => { m[r.subject_hash + r.purpose] = r; return m; }, {}))
+    : (T[table] || []);
+  const rows = () => source().filter((r) => Object.entries(f).every(([k, v]) => (Array.isArray(v) ? v.includes(r[k]) : r[k] === v)));
   const b = {
     select() { return b; }, order() { return b; }, limit() { return b; },
     eq(k, v) { f[k] = v; return b; }, in(k, v) { f[k] = v; return b; },
@@ -95,6 +98,24 @@ test('approval requires all five checks, records them, and moves the driver to a
   assert.equal(T.driver_vetting.length, 5);
   assert.ok(T.driver_vetting.every((v) => v.result === 'pass' && v.provider === 'staff_visual_check' && v.consent_event_id && v.checked_by === staff.user_id));
   assert.ok(T.audit_log.some((a) => a.action === 'driver_approve' && a.actor === staff.user_id));
+});
+
+test('a plate typed differently is the same plate', async () => {
+  user = { id: '33333333-3333-3333-3333-333333333333', email: 'kofi@gmail.com' };
+  assert.equal((await apply(req({ ...form, phone: '0277777777', plate: 'GR452122' }))).status, 409);
+});
+
+test('approval is refused when the driver has withdrawn vetting consent', async () => {
+  const before = T.drivers[0].status;
+  const h = T.consent_events[0].subject_hash;
+  T.drivers.push({ id: '44444444-4444-4444-4444-444444444444', phone: '+233200000044', status: 'pending_review', plate: 'AS 9-26' });
+  const { subjectHash } = await import('../lib/privacy.js');
+  const h2 = subjectHash('+233200000044');
+  T.consent_events.push({ id: 900, subject_hash: h2, purpose: 'driver_vetting', granted: true }, { id: 901, subject_hash: h2, purpose: 'driver_vetting', granted: false });
+  assert.equal((await setStatus(req({ driver_id: '44444444-4444-4444-4444-444444444444', action: 'approve', checks: ALL }))).status, 409);
+  assert.equal(T.drivers[1].status, 'pending_review');
+  assert.ok(h && before);
+  T.drivers.pop();
 });
 
 test('approving twice is refused; suspend and reinstate work and are logged', async () => {

@@ -45,7 +45,7 @@ create trigger consent_events_no_change before update or delete on consent_event
 -- Current state per subject and purpose
 create or replace view consent_current as
   select distinct on (subject_hash, purpose) subject_hash, purpose, granted, notice_version, created_at
-  from consent_events order by subject_hash, purpose, created_at desc;
+  from consent_events order by subject_hash, purpose, created_at desc, id desc;
 
 -- 3. Data subject requests register
 create table if not exists dsar_requests (
@@ -81,7 +81,7 @@ create table if not exists driver_vetting (
   doc_number_hash  text,                   -- HMAC of the document number (to detect re-use), never the number
   doc_last4        text check (doc_last4 ~ '^[A-Z0-9]{0,4}$'),
   expires_on       date,
-  consent_event_id bigint references consent_events(id),
+  consent_event_id bigint references consent_events(id) on delete set null,
   checked_by       uuid references auth.users(id),
   checked_at       timestamptz not null default now()
 );

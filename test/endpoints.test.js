@@ -79,10 +79,8 @@ test('driver trips: passenger details decrypted for the driver; acknowledgement 
   }];
   state.tables.consent_current = [];
   let out = await (await trips(new Request('http://x/api'))).json();
-  assert.equal(out.trips[0].passenger_name, 'Ama Owusu');
-  assert.equal(out.trips[0].passenger_phone, '+233244112087');
-  assert.ok(!JSON.stringify(out).includes('v1:'), 'no ciphertext sent to the browser');
   assert.equal(out.privacy.acknowledged, false);
+  assert.deepEqual(out.trips, [], 'no passenger details before the driver accepts the notice');
 
   const h = blindIndex(driver.phone);
   state.tables.consent_current = [
@@ -91,6 +89,14 @@ test('driver trips: passenger details decrypted for the driver; acknowledgement 
   ];
   out = await (await trips(new Request('http://x/api'))).json();
   assert.equal(out.privacy.acknowledged, true);
+  assert.equal(out.trips[0].passenger_name, 'Ama Owusu');
+  assert.equal(out.trips[0].passenger_phone, '+233244112087');
+  assert.ok(!JSON.stringify(out).includes('v1:'), 'no ciphertext sent to the browser');
+
+  driver.status = 'suspended';
+  out = await (await trips(new Request('http://x/api'))).json();
+  assert.deepEqual(out.trips, [], 'a suspended driver sees no passenger details');
+  driver.status = 'approved';
 });
 
 test('driver consent: both required boxes needed; marketing no is recorded only when withdrawing a yes', async () => {

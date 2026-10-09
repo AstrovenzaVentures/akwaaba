@@ -15,7 +15,7 @@ await db.exec(`
   create role anon; create role authenticated;
   create function auth.uid() returns uuid language sql as $$ select null::uuid $$;
 `);
-for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql']) {
+for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql', 'migrations/005_review_fixes.sql']) {
   await db.exec(fs.readFileSync(new URL(`../supabase/${f}`, import.meta.url), 'utf8'));
 }
 check('schema and privacy migrations load', true);
@@ -39,7 +39,8 @@ await q(`insert into drivers (id,name,phone,email,vehicle_type,vehicle_model,pla
 
 const date = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);
 // The server sends encrypted fields and a phone hash, never plain text (stand-in values here; real ones come from lib/privacy.js).
-const trip = ({ passenger_phone = '+233244112087', ...over } = {}) => JSON.stringify({
+let phoneSeq = 0;
+const trip = ({ passenger_phone = '+23324411' + String(2000 + phoneSeq++).padStart(4, '0'), ...over } = {}) => JSON.stringify({
   airport: 'ACC', flight: 'ET921', arrival_date: date, arrival_time: '14:25', area: 'Osu', zone: 'ACC-B',
   vehicle: 'sedan', extras: ['meet'], pax: 2, bags: 2,
   passenger_name_enc: 'v1:enc-name', passenger_phone_enc: 'v1:enc-' + passenger_phone, passenger_email_enc: null,
@@ -49,7 +50,7 @@ const trip = ({ passenger_phone = '+233244112087', ...over } = {}) => JSON.strin
 });
 
 // 1. Only an approved driver with an active subscription gets the booking
-const [b1] = await q(`select * from create_booking($1::jsonb)`, [trip()]);
+const [b1] = await q(`select * from create_booking($1::jsonb)`, [trip({ passenger_phone: '+233244112087' })]);
 check('booking goes to the approved, subscribed driver', b1.driver_name === 'Kwame' && b1.plate === 'GR 1', JSON.stringify(b1));
 check('booking returns the driver phone for WhatsApp', b1.driver_phone === '+233200000001', b1.driver_phone);
 const [row1] = await q(`select status, fare_ghs, extras, passenger_email, area, passenger_name, passenger_phone, dest_address,
@@ -79,7 +80,7 @@ check('second Kumasi booking at that time finds no driver (Accra drivers are not
 
 // 2c. One airport at a time: the same passenger cannot also book Kumasi around their Accra pickup
 err = null;
-try { await q(`select * from create_booking($1::jsonb)`, [trip({ airport: 'KMS', area: 'Adum', zone: 'KMS-B', flight: 'AW106', arrival_time: '16:00' })]); } catch (e) { err = e.message; }
+try { await q(`select * from create_booking($1::jsonb)`, [trip({ airport: 'KMS', area: 'Adum', zone: 'KMS-B', flight: 'AW106', arrival_time: '16:00', passenger_phone: '+233244112087' })]); } catch (e) { err = e.message; }
 check('same passenger cannot hold Accra and Kumasi bookings within 6 hours', /other_airport/.test(err || ''), err);
 
 // 3. Five hours later Kwame is free again
@@ -129,6 +130,29 @@ check('plain-text phone can no longer be written', /bookings_no_plaintext_pii/.t
 err = null;
 try { await q(`update consent_events set granted=false`); } catch (e) { err = e.message; }
 check('consent ledger cannot be edited', /append-only/.test(err || ''), err);
+
+// 7c. Abuse limits
+const capPhone = '+233209990077';
+await q(`select * from create_booking($1::jsonb)`, [trip({ arrival_time: '06:00', passenger_phone: capPhone, vehicle: 'sedan' })]).catch(() => {});
+const capRows = await q(`select count(*)::int n from bookings where passenger_phone_hash = $1`, ['hash-' + capPhone]);
+await q(`insert into bookings (code, airport, flight, arrival_date, arrival_time, area, zone, vehicle, pax, bags, fare_ghs, fare_lines, status, driver_id, passenger_phone_hash, passenger_name_enc, passenger_phone_enc, privacy_notice_version)
+  select 'AKW-CAP' || g, 'ACC', 'ET921', $1::date, '05:00', 'Osu', 'ACC-B', 'sedan', 1, 0, 220, '[]', 'assigned', $2, $3, 'x', 'x', '1.0' from generate_series(1, 2 - $4::int) g`,
+  [date, u1.id, 'hash-' + capPhone, capRows[0].n]);
+err = null;
+try { await q(`select * from create_booking($1::jsonb)`, [trip({ arrival_time: '21:00', passenger_phone: capPhone })]); } catch (e) { err = e.message; }
+check('a phone number cannot hold more than 2 live bookings', /too_many_bookings/.test(err || ''), err);
+const stalePhone = '+233209990079';
+const past = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
+await q(`insert into bookings (code, airport, flight, arrival_date, arrival_time, area, zone, vehicle, pax, bags, fare_ghs, fare_lines, status, driver_id, passenger_phone_hash, passenger_name_enc, passenger_phone_enc, privacy_notice_version)
+  select 'AKW-OLD' || g, 'ACC', 'ET921', $1::date, '05:00', 'Osu', 'ACC-B', 'sedan', 1, 0, 220, '[]', 'assigned', $2, $3, 'x', 'x', '1.0' from generate_series(1, 2) g`,
+  [past, u1.id, 'hash-' + stalePhone]);
+err = null;
+try { await q(`select * from create_booking($1::jsonb)`, [trip({ arrival_time: '22:30', passenger_phone: stalePhone })]); } catch (e) { err = e.message; }
+check('old trips nobody closed do not count towards the 2-booking limit', !/too_many_bookings/.test(err || ''), err);
+err = null;
+const far = new Date(Date.now() + 120 * 864e5).toISOString().slice(0, 10);
+try { await q(`select * from create_booking($1::jsonb)`, [trip({ arrival_date: far, passenger_phone: '+233209990078' })]); } catch (e) { err = e.message; }
+check('bookings more than 90 days ahead are refused by the database', /too_far_ahead/.test(err || ''), err);
 
 // 8. Constraints: only subscription payments exist; trip status must be valid
 err = null;

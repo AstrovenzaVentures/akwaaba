@@ -34,6 +34,10 @@ export async function POST(request) {
         await db().from('abuse_flags').insert({ subject_hash: protectedFields.passenger_phone_hash, reason: 'other_airport_block' });
         return json(409, { error: 'You already have a pickup booked at the other airport around this time. You can book one airport at a time. Contact astrovenzav@gmail.com to change your booking.' });
       }
+      if (/too_many_bookings/.test(rpcErr.message)) {
+        return json(409, { error: 'This phone number already has two upcoming pickups. Contact astrovenzav@gmail.com if you need another.' });
+      }
+      if (/too_far_ahead/.test(rpcErr.message)) return json(400, { error: 'You can book up to 90 days ahead.' });
       if (/no_driver/.test(rpcErr.message)) {
         return json(409, { error: `No driver is available at ${airport.name} for that time and vehicle. Try another vehicle size or time.` });
       }

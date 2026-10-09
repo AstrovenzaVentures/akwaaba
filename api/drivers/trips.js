@@ -7,6 +7,7 @@ import { db } from '../../lib/db.js';
 import { requireDriver } from '../../lib/auth.js';
 import { decryptField } from '../../lib/pii-crypto.js';
 import { PRIVACY_NOTICE_VERSION, subjectHash } from '../../lib/privacy.js';
+import { driverAcknowledged, canWork } from '../../lib/driver-access.js';
 import { json, handle, readJson } from '../../lib/http.js';
 
 const open = (row, col) => decryptField(row[`${col}_enc`], `bookings.${col}`);
@@ -15,6 +16,10 @@ export async function GET(request) {
   return handle(async () => {
     const driver = await requireDriver(request);
     if (!driver) return json(401, { error: 'Sign in as a driver.' });
+
+    // Passenger details leave the server only for an active driver who has accepted the current notice.
+    const acknowledged = await driverAcknowledged(driver);
+    const mayView = acknowledged && canWork(driver);
 
     const since = new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10);
     const { data: rows, error } = await db().from('bookings')
@@ -30,19 +35,14 @@ export async function GET(request) {
       return { ...t, passenger_name: open(r, 'passenger_name'), passenger_phone: open(r, 'passenger_phone'), dest_address: open(r, 'dest_address') };
     });
 
-    // Has this driver acknowledged the current privacy notice and agreed to vetting checks?
-    const { data: consents } = await db().from('consent_current').select('purpose, granted, notice_version')
-      .eq('subject_hash', subjectHash(driver.phone)).in('purpose', ['privacy_notice', 'driver_vetting']);
-    const ok = (purpose) => consents?.some((c) => c.purpose === purpose && c.granted && c.notice_version === PRIVACY_NOTICE_VERSION);
-
     const subActive = driver.sub_until && new Date(driver.sub_until) > new Date();
     return json(200, {
       driver: {
         name: driver.name, plate: driver.plate, vehicle: driver.vehicle_type, base_airport: driver.base_airport, status: driver.status,
         subscription_active: !!subActive, sub_until: driver.sub_until
       },
-      privacy: { version: PRIVACY_NOTICE_VERSION, acknowledged: ok('privacy_notice') && ok('driver_vetting') },
-      trips
+      privacy: { version: PRIVACY_NOTICE_VERSION, acknowledged },
+      trips: mayView ? trips : []
     });
   });
 }

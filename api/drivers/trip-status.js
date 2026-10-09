@@ -5,11 +5,14 @@ import { db } from '../../lib/db.js';
 import { requireDriver } from '../../lib/auth.js';
 import { parseStatusChange, FROM_STEP } from '../../lib/validate.js';
 import { json, handle, readJson } from '../../lib/http.js';
+import { driverAcknowledged, canWork } from '../../lib/driver-access.js';
 
 export async function POST(request) {
   return handle(async () => {
     const driver = await requireDriver(request);
     if (!driver) return json(401, { error: 'Sign in as a driver.' });
+    if (!canWork(driver)) return json(403, { error: 'Your account is suspended. Contact astrovenzav@gmail.com.' });
+    if (!(await driverAcknowledged(driver))) return json(403, { error: 'Accept the privacy notice in the driver app first.' });
 
     const { data: c, error } = parseStatusChange(await readJson(request));
     if (error) return json(400, { error });

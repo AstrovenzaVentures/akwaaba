@@ -19,15 +19,20 @@ export async function GET(request) {
       .order('created_at', { ascending: false }).limit(500);
     if (error) throw new Error('drivers query failed: ' + error.message);
 
-    const { data: checks } = await db().from('driver_vetting').select('driver_id, check_type, result, checked_at')
-      .in('driver_id', drivers.map((d) => d.id));
+    // Vetting checks for the listed drivers, 100 ids per request to keep each request small.
+    const checks = [];
+    for (let i = 0; i < drivers.length; i += 100) {
+      const { data } = await db().from('driver_vetting').select('driver_id, check_type, result, checked_at')
+        .in('driver_id', drivers.slice(i, i + 100).map((d) => d.id));
+      checks.push(...(data || []));
+    }
     const now = Date.now();
     return json(200, {
       staff: { email: staff.email, role: staff.role },
       drivers: drivers.map((d) => ({
         ...d,
         subscription_active: !!d.sub_until && new Date(d.sub_until).getTime() > now,
-        checks: (checks || []).filter((c) => c.driver_id === d.id).map(({ driver_id, ...c }) => c)
+        checks: checks.filter((c) => c.driver_id === d.id).map(({ driver_id, ...c }) => c)
       }))
     });
   });
@@ -56,9 +61,12 @@ export async function POST(request) {
       if (!VETTING_CHECKS.every((c) => checks.includes(c))) {
         return json(400, { error: 'Confirm all five document checks before approving.' });
       }
-      const { data: consent } = await db().from('consent_events').select('id')
+      // The driver's current choice must be "granted" (a later withdrawal wins), then link the latest grant.
+      const { data: current } = await db().from('consent_current').select('granted')
+        .eq('subject_hash', subjectHash(d.phone)).eq('purpose', 'driver_vetting').maybeSingle();
+      const { data: consent } = current?.granted ? await db().from('consent_events').select('id')
         .eq('subject_hash', subjectHash(d.phone)).eq('purpose', 'driver_vetting').eq('granted', true)
-        .order('created_at', { ascending: false }).limit(1).maybeSingle();
+        .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(1).maybeSingle() : { data: null };
       if (!consent) return json(409, { error: 'This driver has not given written consent to vetting checks. Ask them to sign in to the driver app and accept it.' });
       const { error } = await db().from('driver_vetting').insert(VETTING_CHECKS.map((c) => ({
         driver_id: id, check_type: c, result: 'pass', provider: 'staff_visual_check',

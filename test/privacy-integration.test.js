@@ -34,6 +34,11 @@ test('booking from a page showing an old privacy notice is refused', () => {
   assert.ok(parseBookingRequest({ ...good, privacy_version: undefined }).error);
 });
 
+test('bookings more than 90 days ahead are refused', () => {
+  const far = new Date(Date.now() + 120 * 864e5).toISOString().slice(0, 10);
+  assert.match(parseBookingRequest({ ...good, arrival_date: far }).error, /90 days/);
+});
+
 test('marketing is off unless the box was ticked', () => {
   assert.equal(parseBookingRequest(good).data.marketing, false);
   assert.equal(parseBookingRequest({ ...good, marketing_opt_in: 'on' }).data.marketing, false);

@@ -11,7 +11,9 @@ await db.exec(`create schema auth; create table auth.users (id uuid primary key 
 await db.exec(fs.readFileSync(new URL('../supabase/schema.sql', import.meta.url), 'utf8'));
 await db.exec(fs.readFileSync(new URL('../supabase/migrations/002_privacy.sql', import.meta.url), 'utf8'));
 await db.exec(fs.readFileSync(new URL('../supabase/migrations/002_privacy.sql', import.meta.url), 'utf8')); // re-runnable
-check('schema + privacy migration apply, and migration is re-runnable', true);
+await db.exec(fs.readFileSync(new URL('../supabase/migrations/005_review_fixes.sql', import.meta.url), 'utf8'));
+await db.exec(fs.readFileSync(new URL('../supabase/migrations/005_review_fixes.sql', import.meta.url), 'utf8')); // re-runnable
+check('schema + privacy migrations apply, and migrations are re-runnable', true);
 
 const [u] = await q(`insert into auth.users(email) values ('d@x') returning id`);
 await q(`insert into drivers (id,name,phone,email,vehicle_type,plate,status,sub_until) values ($1,'K','+233200000001','d@x','sedan','GR 1','approved', now()+interval '9 days')`, [u.id]);
@@ -75,6 +77,22 @@ check('consent purge keeps the current choice of active subscribers', JSON.strin
 err = null;
 try { await q(`delete from consent_events where subject_hash='still-in'`); } catch (x) { err = x.message; }
 check('outside the purge, consent records still cannot be deleted', /append-only/.test(err || ''), err);
+
+// Vetting records that point at an old, superseded consent row do not block the consent purge.
+const [oldC] = await q(`insert into consent_events (subject_type, subject_hash, purpose, granted, notice_version, source, created_at)
+  values ('driver','vet-h','driver_vetting',true,'0.9','driver_application', now() - interval '3 years') returning id`);
+await q(`insert into consent_events (subject_type, subject_hash, purpose, granted, notice_version, source) values ('driver','vet-h','driver_vetting',true,'1.0','driver_app')`);
+await q(`insert into driver_vetting (driver_id, check_type, result, provider, consent_event_id) values ($1,'ghana_card','pass','staff_visual_check',$2)`, [u.id, oldC.id]);
+let purgeErr = null;
+try { await q(`select purge_old_consent_events()`); } catch (e) { purgeErr = e.message; }
+const [vet] = await q(`select consent_event_id from driver_vetting where check_type='ghana_card' and driver_id=$1`, [u.id]);
+check('consent purge succeeds when vetting records point at a superseded consent', !purgeErr && vet.consent_event_id === null, purgeErr);
+
+// Two consent rows written at the same instant: the later one (higher id) is the current choice.
+await q(`insert into consent_events (subject_type, subject_hash, purpose, granted, notice_version, source, created_at)
+  values ('traveller','tie-h','marketing',true,'1.0','booking_form','2026-01-01T00:00:00Z'), ('traveller','tie-h','marketing',false,'1.0','email_unsubscribe','2026-01-01T00:00:00Z')`);
+const [tie] = await q(`select granted from consent_current where subject_hash='tie-h' and purpose='marketing'`);
+check('consent_current breaks timestamp ties by id (a withdrawal wins)', tie.granted === false, JSON.stringify(tie));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

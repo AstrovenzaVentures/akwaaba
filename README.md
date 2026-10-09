@@ -70,7 +70,7 @@ No Google Maps account or API keys are needed.
 ## Setup
 
 ### 1. Supabase (database and sign-in)
-1. Create a project in West Europe (London), `eu-west-2`, to match the server region in `vercel.json`. In **SQL Editor**, run `supabase/schema.sql`.
+1. Create a project in West Europe (London), `eu-west-2`, to match the server region in `vercel.json`. In **SQL Editor**, run `supabase/schema.sql`, then the files in `supabase/migrations/` in number order (004 needs the pg_cron extension).
 2. **Authentication > Sign In / Providers**: keep **Email** on (drivers and staff both sign in by email). Phone/SMS is optional and paid; leave it off until you want SMS codes.
 3. **Authentication > Multi-Factor**: enable **TOTP** for staff.
 4. **Authentication > Emails > SMTP Settings**: turn on custom SMTP (Supabase's built-in sender only reaches your own team's addresses). Free option: Gmail, host `smtp.gmail.com`, port `465`, user `astrovenzav@gmail.com`, password = a Google **app password**. Then in **Emails > Templates > Magic Link**, make the message show the code: `Your Akwaaba sign-in code is {{ .Token }}. It expires in 10 minutes. Never share it.`
