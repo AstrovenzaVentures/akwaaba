@@ -12,11 +12,16 @@ Staff accounts: create the user with a password in Supabase **Authentication > U
 `insert into staff (user_id, role) select id, 'admin' from auth.users where email = 'astrovenzav@gmail.com';`
 The authenticator app is set up on the first `/staff` sign-in (scan the QR code).
 
+### Direct payments (MoMo or bank, alongside Paystack)
+Drivers can also send GHS 100 straight to Astrovenza and upload a screenshot with the transaction ID. It waits under **Payments to confirm** on `/staff`; staff check it on the real MoMo or bank statement, then **Confirm** (30 days added) or **Reject** with a reason the driver sees. One open claim per driver; a transaction ID can only be used once. Screenshots sit in the private `payment-proofs` storage bucket, are shown to staff through 10-minute links, and are deleted 90 days after the decision.
+
+Setup: run `supabase/migrations/006_manual_payments.sql`. Then in **Table Editor > payment_accounts**, fill in each account you want to use (number or merchant ID, the name it shows, and bank name and branch for the bank) and set **active** to true. Rows that still say `FILL IN`, or are not active, are never shown to drivers.
+
 ## Money model
 
 - **Travellers book for free and pay the driver directly when they meet**, in cash or by mobile money to the driver's own number. No advance payment, no deposit.
 - **Drivers keep 100% of every fare.**
-- **Astrovenza Ventures collects only the GHS 100 monthly driver subscription**, paid through Paystack. No fare money ever passes through Akwaaba, so there are no fare refunds, chargebacks or payouts to manage.
+- **Astrovenza Ventures collects only the GHS 100 monthly driver subscription**, paid through Paystack or directly to Astrovenza's MoMo or bank account (confirmed by staff). No fare money ever passes through Akwaaba, so there are no fare refunds, chargebacks or payouts to manage.
 
 ## What is in this project
 

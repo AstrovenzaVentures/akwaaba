@@ -47,6 +47,28 @@
 
   <div id="appArea" hidden style="display:grid;gap:18px">
     <div class="sub" id="subCard"></div>
+    <div id="claimNote"></div>
+
+    <!-- Direct payment to Astrovenza: driver sends GHS 100, then uploads proof; staff confirm on the statement -->
+    <section class="panel" id="directPanel" hidden>
+      <h2>Pay directly to Astrovenza</h2>
+      <ol class="hint" style="margin:0;padding-left:18px;display:grid;gap:4px">
+        <li>Send exactly <strong>GHS 100</strong> to one of the accounts below. Check that the name shown before you confirm matches.</li>
+        <li>Take a screenshot of the success message.</li>
+        <li>Fill in the form and send it. We check it on our statement and switch on your subscription for 30 days.</li>
+      </ol>
+      <form id="directForm" style="display:grid;gap:12px" novalidate>
+        <div class="choices pay" id="directAccounts"></div>
+        <div class="fields">
+          <label class="f">Transaction ID <input id="txnId" autocomplete="off" placeholder="From your payment message" maxlength="40"></label>
+          <label class="f">Paid from (number or account) <input id="payer" autocomplete="off" placeholder="e.g. 024 411 2087" maxlength="40"></label>
+          <label class="f full">Screenshot of the payment <input type="file" id="proof" accept="image/*"></label>
+        </div>
+        <p class="hint">Only Akwaaba staff see your screenshot. We delete it 90 days after we check it.</p>
+        <p class="err" id="directErr" hidden></p>
+        <div class="actions"><button class="btn btn-sign" id="directSend" type="submit">Send for checking</button><button class="btn btn-ghost" id="directCancel" type="button">Cancel</button></div>
+      </form>
+    </section>
 
     <div class="note"><strong>Fares:</strong> passengers pay you directly when you meet them, in cash or by mobile money to your own number. You keep the whole fare. Akwaaba only charges the GHS 100 monthly subscription.</div>
 

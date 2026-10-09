@@ -15,7 +15,7 @@ await db.exec(`
   create role anon; create role authenticated;
   create function auth.uid() returns uuid language sql as $$ select null::uuid $$;
 `);
-for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql', 'migrations/005_review_fixes.sql']) {
+for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql', 'migrations/005_review_fixes.sql', 'migrations/006_manual_payments.sql', 'migrations/006_manual_payments.sql']) {
   await db.exec(fs.readFileSync(new URL(`../supabase/${f}`, import.meta.url), 'utf8'));
 }
 check('schema and privacy migrations load', true);
@@ -161,6 +161,46 @@ check('fare payments cannot be recorded', !!err);
 err = null;
 try { await q(`update bookings set status='teleported' where id=$1`, [b2.id]); } catch (e) { err = e.message; }
 check('invalid trip status rejected', !!err);
+
+// 9. Direct MoMo/bank payments (migration 006)
+const accts = await q(`select method, active from payment_accounts order by sort`);
+check('four payment accounts seeded, all switched off until filled in', accts.length === 4 && accts.every((a) => !a.active), JSON.stringify(accts));
+const [sub0] = await q(`select sub_until from drivers where id=$1`, [u2.id]);
+await q(`insert into payments(reference,driver_id,amount_pesewas,status,method,manual_txn_id,payer_account,proof_path)
+         values ('AKW_MAN_1',$1,10000,'submitted','mtn','TX123','0244','d/p.png')`, [u2.id]);
+err = null;
+try { await q(`insert into payments(reference,driver_id,amount_pesewas,status,method,manual_txn_id) values ('AKW_MAN_2',$1,10000,'submitted','mtn','TX999')`, [u2.id]); } catch (e) { err = e.message; }
+check('a driver can have only one direct payment waiting at a time', /one_open_claim/.test(err || ''), err);
+err = null;
+try { await q(`insert into payments(reference,driver_id,amount_pesewas,status,method,manual_txn_id) values ('AKW_MAN_3',$1,10000,'submitted','mtn','tx123')`, [u1.id]); } catch (e) { err = e.message; }
+check('the same transaction ID cannot be claimed twice (any letter case)', /manual_txn_uniq/.test(err || ''), err);
+err = null;
+try { await q(`insert into payments(reference,driver_id,amount_pesewas,method) values ('AKW_X',$1,10000,'cash')`, [u1.id]); } catch (e) { err = e.message; }
+check('unknown payment methods are refused', !!err);
+const [staffU] = await q(`insert into auth.users(email) values ('s@x.com') returning id`);
+const [m1] = await q(`select review_manual_payment('AKW_MAN_1',$1,true,null,30) as o`, [staffU.id]);
+const [sub1] = await q(`select sub_until from drivers where id=$1`, [u2.id]);
+const [pm1] = await q(`select status, reviewed_by, paid_at from payments where reference='AKW_MAN_1'`);
+check('confirming a direct payment marks it paid and adds 30 days to the current subscription',
+  m1.o === 'subscription_extended' && pm1.status === 'success' && pm1.reviewed_by === staffU.id && !!pm1.paid_at &&
+  Math.abs(new Date(sub1.sub_until) - (Math.max(+new Date(sub0.sub_until), Date.now()) + 30 * 864e5)) < 60e3, JSON.stringify({ m1, pm1, sub0, sub1 }));
+const [m2] = await q(`select review_manual_payment('AKW_MAN_1',$1,true,null,30) as o`, [staffU.id]);
+const [sub2] = await q(`select sub_until from drivers where id=$1`, [u2.id]);
+check('confirming twice does nothing the second time', m2.o === 'already_handled' && +new Date(sub2.sub_until) === +new Date(sub1.sub_until));
+await q(`insert into payments(reference,driver_id,amount_pesewas,status,method,manual_txn_id) values ('AKW_MAN_4',$1,10000,'submitted','telecel','TEL1')`, [u1.id]);
+const [sub3] = await q(`select sub_until from drivers where id=$1`, [u1.id]);
+const [m3] = await q(`select review_manual_payment('AKW_MAN_4',$1,false,'Not on statement',30) as o`, [staffU.id]);
+const [pm4] = await q(`select status, reject_reason from payments where reference='AKW_MAN_4'`);
+const [sub4] = await q(`select sub_until from drivers where id=$1`, [u1.id]);
+check('rejecting keeps the subscription unchanged and records the reason',
+  m3.o === 'rejected' && pm4.status === 'rejected' && pm4.reject_reason === 'Not on statement' && +new Date(sub3.sub_until) === +new Date(sub4.sub_until));
+await q(`insert into payments(reference,driver_id,amount_pesewas,status,method,manual_txn_id) values ('AKW_MAN_5',$1,10000,'submitted','telecel','TEL1')`, [u1.id]);
+check('a rejected transaction ID can be sent again (e.g. after a typo fix)', true);
+const [pp] = await q(`select apply_payment('AKW_MAN_5', 1, now(), 'x', 30) as o`);
+check('the Paystack settlement path cannot confirm a direct payment', pp.o === 'already_handled');
+const grants = await q(`select has_function_privilege('anon','review_manual_payment(text,uuid,boolean,text,integer)','execute') a,
+                               has_function_privilege('authenticated','review_manual_payment(text,uuid,boolean,text,integer)','execute') b`);
+check('browsers cannot call the staff payment decision directly', !grants[0].a && !grants[0].b);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -72,9 +72,23 @@ function card(d, kind) {
     <div class="actions">${kind === 'approved' ? '<button class="btn btn-ghost" data-act="suspend" type="button">Suspend</button>' : '<button class="btn btn-ghost" data-act="reinstate" type="button">Reinstate</button>'}</div></div>`;
 }
 
+const METHOD = { mtn: 'MTN MoMo', telecel: 'Telecel Cash', airteltigo: 'AirtelTigo Money', bank: 'Bank transfer' };
+function paymentCard(p) {
+  return `<div class="trip" style="cursor:default" data-ref="${esc(p.reference)}">
+    <div class="row"><strong>${esc(p.driver_name)}</strong><span class="pill">${esc(METHOD[p.method] || p.method)}</span></div>
+    <span class="hint"><span style="font-family:var(--mono)">${esc(p.driver_plate)}</span> · ${esc(p.driver_phone)} · sent ${new Date(p.created_at).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+    <span>Amount expected: <strong>GHS ${(p.amount_pesewas / 100).toFixed(2)}</strong></span>
+    <span>Transaction ID: <strong style="font-family:var(--mono);user-select:all">${esc(p.manual_txn_id)}</strong></span>
+    <span>Paid from: <strong style="font-family:var(--mono);user-select:all">${esc(p.payer_account)}</strong></span>
+    ${p.proof_url ? `<a href="${esc(p.proof_url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(p.proof_url)}" alt="Payment screenshot" style="max-width:260px;max-height:420px;border-radius:8px;border:1px solid var(--line,#ddd)"></a>` : '<span class="hint">No screenshot.</span>'}
+    <div class="actions"><button class="btn btn-sign" data-pay="confirm_payment" type="button">Confirm: found on statement</button><button class="btn btn-ghost" data-pay="reject_payment" type="button">Reject</button></div></div>`;
+}
+
 async function load() {
   const out = await api('/api/staff/drivers');
   $('#who').textContent = `Signed in as ${out.staff.email} (${out.staff.role})`;
+  $('#nPayments').textContent = out.payments.length;
+  $('#payments').innerHTML = out.payments.length ? out.payments.map(paymentCard).join('') : '<p class="hint">None.</p>';
   for (const kind of ['pending', 'approved', 'suspended']) {
     const status = kind === 'pending' ? 'pending_review' : kind;
     const list = out.drivers.filter((d) => d.status === status);
@@ -84,6 +98,22 @@ async function load() {
 }
 
 $('#appArea').addEventListener('click', async (e) => {
+  const pay = e.target.closest('button[data-pay]');
+  if (pay) {
+    const ref = pay.closest('[data-ref]').dataset.ref;
+    const action = pay.dataset.pay;
+    let note = '';
+    if (action === 'confirm_payment') {
+      if (!confirm('Confirm only if you have found this exact transaction ID and GHS 100 on your own statement. Switch on the subscription for 30 days?')) return;
+    } else {
+      note = prompt('Reason the driver will see (e.g. "No payment with this ID on our statement"):');
+      if (!note) return;
+    }
+    pay.disabled = true;
+    try { await api('/api/staff/drivers', { method: 'POST', body: JSON.stringify({ payment_reference: ref, action, note }) }); showErr('#appErr', ''); await load(); }
+    catch (err) { showErr('#appErr', err.message); pay.disabled = false; }
+    return;
+  }
   const btn = e.target.closest('button[data-act]');
   if (!btn) return;
   const box = btn.closest('[data-id]');

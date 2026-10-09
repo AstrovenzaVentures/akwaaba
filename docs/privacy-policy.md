@@ -88,6 +88,7 @@ Act 843 s.27 requires us to tell you what we collect, whether you have to provid
 | Police clearance / criminal record check result | You, with your written consent | Required for approval | We cannot approve you to drive |
 | Base airport | You | Required | We cannot send you pickups |
 | Subscription payment records (amount, date, Paystack reference, payment channel) | Paystack | Created when you pay | n/a |
+| If you pay us directly by mobile money or bank transfer: the transaction ID, the number or account you paid from, and a screenshot of the payment | You | Optional (you can pay through Paystack instead) | We cannot confirm a direct payment |
 | Trip history (bookings assigned to you, status changes and times) | Created by Akwaaba | n/a | n/a |
 
 Criminal record information is **special personal data** under Act 843 s.37. We collect only the result of the check (for example "clear" or "not clear" and the date), we collect it only with your express consent, and we use it only to decide whether you can drive with Akwaaba. We do not keep copies of your ID or licence images after verification. See section 9.
@@ -100,7 +101,7 @@ Drivers who sign in keep a sign-in session in their browser's storage. We do not
 
 ### 4.4 What we do not collect
 
-- **Card numbers, mobile money PINs, payment tokens.** Drivers pay their subscription on Paystack's secure checkout. Paystack, a payment service provider licensed by the Bank of Ghana, handles the payment details. We receive only a payment reference, the amount, the date and the type of payment method (for example "mobile money").
+- **Card numbers, mobile money PINs, payment tokens.** Drivers pay their subscription on Paystack's secure checkout, or directly to Astrovenza's mobile money or bank account. Paystack, a payment service provider licensed by the Bank of Ghana, handles the payment details. We receive only a payment reference, the amount, the date and the type of payment method (for example "mobile money"). For a direct payment we receive only what you send us (see 4.2). Never send us your PIN; we will never ask for it.
 - **Fares.** Travellers pay drivers directly. We do not process fare payments.
 - ▣{!gps} **Live location.** Akwaaba does not track the location of travellers or drivers.
 - **Data about children.** We do not ask for the names or details of children travelling. We only ask how many passengers there are and whether a child seat is needed. Bookings must be made by someone aged 18 or over.
@@ -153,7 +154,7 @@ We do not use your data for purposes unrelated to those above. If we need to use
 |---|---|---|---|
 | Supabase Inc. | Database, driver and staff sign-in | All data in this policy | London, United Kingdom |
 | Vercel Inc. | Website and server hosting | Technical data; data passing through our servers | London, United Kingdom |
-| Google LLC (Gmail) | Sending sign-in codes to drivers by email | Driver email addresses | United States and other countries |
+| Sendinblue SAS (Brevo) | Sending sign-in codes to drivers by email | Driver email addresses | France (European Union) |
 | Paystack Payments Limited | Driver subscription payments | Driver name, email, payment details (handled by Paystack) | Ghana / [●] |
 | ▣{email} [● email provider] | Sending booking and account emails | Name, email address | [●] |
 | ▣{idv} [● verification provider] | Driver ID checks | Driver ID number, photo | [●] |
@@ -200,6 +201,7 @@ We keep personal data only as long as we need it for the purpose we collected it
 | Driver vetting results (ID, licence, police clearance) | While you drive with us, plus 2 years. The results only, not document images | Showing that vetting took place |
 | ▣{idv} ID and licence images (if collected at all) | Deleted within 30 days of the verification decision | Not needed once verified |
 | Subscription payment records | 6 years from the end of the year they relate to | Tax record-keeping under the Revenue Administration Act, 2016 (Act 915) |
+| Screenshots of direct payments | Deleted 90 days after we confirm or reject the payment. The transaction ID and amount are kept as a payment record | Resolving questions about the payment |
 | Staff action audit trail | 2 years | Security and accountability |
 | Server and security logs | Up to 90 days | Security monitoring and investigating incidents |
 | ▣{gps} Detailed trip location points | 30 days after the trip | Safety investigations and disputes |

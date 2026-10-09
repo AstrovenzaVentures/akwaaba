@@ -8,6 +8,7 @@ import { requireDriver } from '../../lib/auth.js';
 import { decryptField } from '../../lib/pii-crypto.js';
 import { PRIVACY_NOTICE_VERSION, subjectHash } from '../../lib/privacy.js';
 import { driverAcknowledged, canWork } from '../../lib/driver-access.js';
+import { activeAccounts } from '../../lib/manual-payment.js';
 import { json, handle, readJson } from '../../lib/http.js';
 
 const open = (row, col) => decryptField(row[`${col}_enc`], `bookings.${col}`);
@@ -36,12 +37,19 @@ export async function GET(request) {
     });
 
     const subActive = driver.sub_until && new Date(driver.sub_until) > new Date();
+    // Direct-payment details (only once approved) and the driver's latest direct-payment claim.
+    const accounts = driver.status === 'approved' ? await activeAccounts() : [];
+    const { data: claim } = await db().from('payments')
+      .select('status, method, manual_txn_id, reject_reason, created_at, reviewed_at')
+      .eq('driver_id', driver.id).neq('method', 'paystack')
+      .order('created_at', { ascending: false }).limit(1).maybeSingle();
     return json(200, {
       driver: {
         name: driver.name, plate: driver.plate, vehicle: driver.vehicle_type, base_airport: driver.base_airport, status: driver.status,
         subscription_active: !!subActive, sub_until: driver.sub_until
       },
       privacy: { version: PRIVACY_NOTICE_VERSION, acknowledged },
+      payment: { accounts, last_claim: claim || null },
       trips: mayView ? trips : []
     });
   });

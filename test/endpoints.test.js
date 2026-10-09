@@ -12,7 +12,7 @@ function from(table) {
   const q = { table, filters: {} };
   const rows = () => (state.tables[table] || []).filter((r) => Object.entries(q.filters).every(([k, v]) => r[k] === undefined || r[k] === v));
   const b = {
-    select() { return b; }, in() { return b; }, gte() { return b; }, order() { return b; },
+    select() { return b; }, in() { return b; }, gte() { return b; }, order() { return b; }, limit() { return b; }, neq() { return b; },
     eq(k, v) { q.filters[k] = v; return b; },
     insert(payload) { state.calls.push({ table, op: 'insert', payload }); return Promise.resolve({ error: null }); },
     maybeSingle() { return Promise.resolve({ data: rows()[0] || null, error: null }); },

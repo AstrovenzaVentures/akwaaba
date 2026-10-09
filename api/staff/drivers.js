@@ -2,11 +2,15 @@
 // GET:  applicants and drivers, newest first, with subscription status and recorded vetting checks.
 // POST: { "driver_id": "<uuid>", "action": "approve" | "suspend" | "reinstate", "checks": [...], "note": "..." }
 //       Approval requires all five document checks; each is recorded in driver_vetting (results only, no copies).
+// POST: { "payment_reference": "...", "action": "confirm_payment" | "reject_payment", "note": "reason" }
+//       Decides a direct MoMo/bank payment after staff have checked it against the real statement.
 import { db } from '../../lib/db.js';
 import { requireStaff } from '../../lib/auth.js';
 import { VETTING_CHECKS } from '../../lib/applicant.js';
 import { subjectHash } from '../../lib/privacy.js';
 import { clean } from '../../lib/validate.js';
+import { PROOF_BUCKET, purgeOldProofs } from '../../lib/manual-payment.js';
+import { SUBSCRIPTION_DAYS } from '../../lib/pricing.js';
 import { json, handle, readJson } from '../../lib/http.js';
 
 export async function GET(request) {
@@ -26,9 +30,23 @@ export async function GET(request) {
         .in('driver_id', drivers.slice(i, i + 100).map((d) => d.id));
       checks.push(...(data || []));
     }
+    // Direct payments waiting for a decision, each with a 10-minute private link to the screenshot.
+    await purgeOldProofs().catch((e) => console.error('[akwaaba] purge', e?.message));
+    const { data: claims } = await db().from('payments')
+      .select('reference, driver_id, method, manual_txn_id, payer_account, amount_pesewas, proof_path, created_at')
+      .eq('status', 'submitted').order('created_at').limit(100);
+    const payments = [];
+    for (const c of claims || []) {
+      const { data: link } = c.proof_path
+        ? await db().storage.from(PROOF_BUCKET).createSignedUrl(c.proof_path, 600) : { data: null };
+      const d = drivers.find((x) => x.id === c.driver_id);
+      const { proof_path, ...rest } = c;
+      payments.push({ ...rest, driver_name: d?.name || '', driver_phone: d?.phone || '', driver_plate: d?.plate || '', proof_url: link?.signedUrl || null });
+    }
     const now = Date.now();
     return json(200, {
       staff: { email: staff.email, role: staff.role },
+      payments,
       drivers: drivers.map((d) => ({
         ...d,
         subscription_active: !!d.sub_until && new Date(d.sub_until).getTime() > now,
@@ -47,6 +65,7 @@ export async function POST(request) {
     if (!staff) return json(401, { error: 'Staff sign-in with your authenticator code is required.' });
 
     const body = await readJson(request);
+    if (body?.payment_reference) return decidePayment(staff, body);
     const id = clean(body?.driver_id, 40);
     const action = clean(body?.action, 12);
     const note = clean(body?.note, 300);
@@ -83,4 +102,24 @@ export async function POST(request) {
     await db().from('audit_log').insert({ actor: staff.user_id, action: `driver_${action}`, target: id, detail: note ? { note } : null });
     return json(200, updated);
   });
+}
+
+async function decidePayment(staff, body) {
+  const reference = clean(body.payment_reference, 60);
+  const action = clean(body.action, 20);
+  const note = clean(body.note, 300);
+  if (!/^AKW_MAN_[0-9a-f]{32}$/.test(reference) || !['confirm_payment', 'reject_payment'].includes(action)) {
+    return json(400, { error: 'Invalid request.' });
+  }
+  const approve = action === 'confirm_payment';
+  if (!approve && note.length < 3) return json(400, { error: 'Give the driver a reason, for example "No payment with this ID on our statement".' });
+
+  const { data: outcome, error } = await db().rpc('review_manual_payment', {
+    p_reference: reference, p_staff: staff.user_id, p_approve: approve, p_reason: approve ? null : note, p_sub_days: SUBSCRIPTION_DAYS
+  });
+  if (error) throw new Error('review_manual_payment failed: ' + error.message);
+  if (outcome === 'already_handled') return json(409, { error: 'This payment was already decided; refresh the list.' });
+
+  await db().from('audit_log').insert({ actor: staff.user_id, action: `manual_payment_${approve ? 'confirmed' : 'rejected'}`, target: reference, detail: note ? { note } : null });
+  return json(200, { outcome });
 }

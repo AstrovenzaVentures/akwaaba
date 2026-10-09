@@ -85,25 +85,92 @@ async function load() {
   if (selected) selectTrip(selected.code);
 }
 
+const METHOD_NAME = { mtn: 'MTN MoMo', telecel: 'Telecel Cash', airteltigo: 'AirtelTigo Money', bank: 'Bank transfer' };
+const fmtDate = (v) => new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+function claimNote(c) {
+  if (!c) return '';
+  if (c.status === 'submitted') {
+    return `<div class="note"><strong>Payment being checked.</strong> ${esc(METHOD_NAME[c.method] || c.method)}, transaction ID <span style="font-family:var(--mono)">${esc(c.manual_txn_id)}</span>, sent ${fmtDate(c.created_at)}. We switch on your subscription as soon as we confirm it on our statement.</div>`;
+  }
+  if (c.status === 'rejected' && Date.now() - new Date(c.reviewed_at).getTime() < 14 * 864e5) {
+    return `<div class="note" style="border-color:var(--bad,#b3261e)"><strong>We could not confirm your ${esc(METHOD_NAME[c.method] || c.method)} payment</strong> (ID <span style="font-family:var(--mono)">${esc(c.manual_txn_id)}</span>): ${esc(c.reject_reason || '')}. Contact astrovenzav@gmail.com if you think this is wrong, or send the details again.</div>`;
+  }
+  return '';
+}
+
+function accountBox(a) {
+  const lines = a.method === 'bank'
+    ? [['Bank', a.bank_name], ['Branch', a.branch], ['Account name', a.account_name], ['Account number', a.account_number]]
+    : [['Name', a.account_name], [/[A-Za-z]/.test(a.account_number) || a.account_number.replace(/\D/g, '').length < 9 ? 'Merchant ID' : 'Number', a.account_number]];
+  return `<label class="choice" style="text-align:left"><input type="radio" name="payMethod" value="${esc(a.method)}"><b>${esc(a.label)}</b>
+    ${lines.map(([k, v]) => `<small>${k}: <span style="font-family:var(--mono);user-select:all">${esc(v || '')}</span></small>`).join('')}
+    ${a.instructions ? `<small>${esc(a.instructions)}</small>` : ''}</label>`;
+}
+
 function renderSub() {
   const d = data.driver;
   const until = d.sub_until ? new Date(d.sub_until) : null;
   const active = d.subscription_active;
+  const pay = data.payment || { accounts: [], last_claim: null };
+  const waiting = pay.last_claim?.status === 'submitted';
+  const canPay = d.status === 'approved';
   $('#subCard').className = 'sub' + (active ? '' : ' expired');
   $('#subCard').innerHTML = `<div style="display:grid;gap:2px">
       <span class="label">Monthly subscription · GHS 100</span>
       <strong style="font-family:var(--display);font-size:22px;text-transform:uppercase">${active ? 'Active' : 'Not active'}</strong>
-      <span class="hint">${active ? `Paid until ${until.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}. You keep 100% of every fare.`
+      <span class="hint">${active ? `Paid until ${fmtDate(until)}. You keep 100% of every fare.`
         : 'You will not receive pickups until you pay.'}${d.status === 'pending_review'
         ? ' Your application is waiting for approval. Contact astrovenzav@gmail.com to arrange your document check; you can pay once approved.'
         : d.status === 'suspended' ? ' Your account is suspended. Contact astrovenzav@gmail.com.' : ''}</span>
     </div>
-    <button class="btn ${active ? 'btn-ghost' : 'btn-sign'}" id="payBtn" type="button" ${d.status !== 'approved' ? 'disabled' : ''}>${active ? 'Pay next month' : 'Pay GHS 100'}</button>`;
+    <div style="display:grid;gap:8px">
+      <button class="btn ${active ? 'btn-ghost' : 'btn-sign'}" id="payBtn" type="button" ${canPay ? '' : 'disabled'}>${active ? 'Pay next month' : 'Pay GHS 100'} with Paystack</button>
+      ${canPay && pay.accounts.length && !waiting ? '<button class="btn btn-ghost" id="directBtn" type="button">Pay directly by MoMo or bank</button>' : ''}
+    </div>`;
+  $('#claimNote').innerHTML = claimNote(pay.last_claim);
   $('#payBtn').addEventListener('click', async () => {
     try { const r = await api('/api/subscriptions/initialize', { method: 'POST' }); location.href = r.authorization_url; }
     catch (err) { showErr('#appErr', err.message); }
   });
+  $('#directBtn')?.addEventListener('click', () => {
+    $('#directAccounts').innerHTML = pay.accounts.map(accountBox).join('');
+    $('#directPanel').hidden = false;
+    $('#directPanel').scrollIntoView({ behavior: 'smooth' });
+  });
+  if (waiting) $('#directPanel').hidden = true;
 }
+
+// Shrinks a phone screenshot to a JPEG of at most 1600 px on the long side before upload.
+async function shrink(file) {
+  const img = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  const url = c.toDataURL('image/jpeg', 0.8);
+  return { type: 'image/jpeg', data: url.slice(url.indexOf(',') + 1) };
+}
+
+$('#directForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const method = document.querySelector('input[name=payMethod]:checked')?.value;
+  const file = $('#proof').files[0];
+  if (!method) return showErr('#directErr', 'Choose the account you paid into.');
+  if (!$('#txnId').value.trim()) return showErr('#directErr', 'Enter the transaction ID from your payment message.');
+  if (!$('#payer').value.trim()) return showErr('#directErr', 'Enter the number or account you paid from.');
+  if (!file) return showErr('#directErr', 'Add a screenshot of your payment.');
+  const btn = $('#directSend'); btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const proof = await shrink(file).catch(() => { throw new Error('Could not read that picture. Use a screenshot (JPG or PNG).'); });
+    await api('/api/subscriptions/initialize', { method: 'POST', body: JSON.stringify({ method, txn_id: $('#txnId').value.trim(), payer_account: $('#payer').value.trim(), proof }) });
+    showErr('#directErr', '');
+    $('#directForm').reset(); $('#directPanel').hidden = true;
+    await load();
+  } catch (err) { showErr('#directErr', err.message); }
+  finally { btn.disabled = false; btn.textContent = 'Send for checking'; }
+});
+$('#directCancel').addEventListener('click', () => { $('#directPanel').hidden = true; });
 
 function renderTrips() {
   if (!data.trips.length) {
