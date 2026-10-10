@@ -15,7 +15,7 @@ await db.exec(`
   create role anon; create role authenticated;
   create function auth.uid() returns uuid language sql as $$ select null::uuid $$;
 `);
-for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql', 'migrations/005_review_fixes.sql', 'migrations/006_manual_payments.sql', 'migrations/006_manual_payments.sql']) {
+for (const f of ['schema.sql', 'migrations/002_privacy.sql', 'migrations/003_encrypted_bookings.sql', 'migrations/005_review_fixes.sql', 'migrations/006_manual_payments.sql', 'migrations/006_manual_payments.sql', 'migrations/007_woezor_codes.sql']) {
   await db.exec(fs.readFileSync(new URL(`../supabase/${f}`, import.meta.url), 'utf8'));
 }
 check('schema and privacy migrations load', true);
@@ -64,7 +64,7 @@ check('fare stored in whole cedis', row1.fare_ghs === 270);
 check('drop-off area stored', row1.area === 'Osu');
 check('email may be empty', row1.passenger_email === null);
 check('extras stored as array', JSON.stringify(row1.extras) === '["meet"]');
-check('booking code format', /^AKW-[A-Z2-9]{4}$/.test(b1.code), b1.code);
+check('booking code format (WZR-)', /^WZR-[A-Z2-9]{4}$/.test(b1.code), b1.code);
 
 // 2. Same time again: Kwame busy, Abena's subscription expired, Kojo not approved -> no driver
 let err = null;

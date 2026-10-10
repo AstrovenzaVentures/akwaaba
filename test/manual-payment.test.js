@@ -99,7 +99,7 @@ test('a direct payment stores the screenshot privately and waits for staff; it d
   assert.equal(res.status, 200);
   const p = T.payments[0];
   assert.equal(p.status, 'submitted'); assert.equal(p.method, 'mtn'); assert.equal(p.amount_pesewas, 10000);
-  assert.match(p.reference, /^AKW_MAN_[0-9a-f]{32}$/);
+  assert.match(p.reference, /^WZR_MAN_[0-9a-f]{32}$/);
   assert.equal(storage.uploads[0].path, `d1/${p.reference}.png`);
   assert.equal(driver.sub_until, null);
   assert.ok(T.audit_log.some((a) => a.action === 'manual_payment_submitted'));

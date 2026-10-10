@@ -1,4 +1,4 @@
-# Akwaaba Privacy Policy
+# Woezor Rides Privacy Policy
 
 **Version:** 1.0 · **Effective date:** [●] · **Last updated:** [●]
 
@@ -13,9 +13,9 @@
 
 ## 1. Who we are
 
-Akwaaba is a booking service for pre-arranged airport pickups in Ghana. It connects travellers arriving at Kotoka International Airport, Accra (ACC), Prempeh I International Airport, Kumasi (KMS), and other airports we add, with independent drivers who have been checked and approved by us.
+Woezor Rides is a booking service for pre-arranged airport pickups in Ghana. It connects travellers arriving at Kotoka International Airport, Accra (ACC), Prempeh I International Airport, Kumasi (KMS), and other airports we add, with independent drivers who have been checked and approved by us.
 
-Akwaaba is operated by **Astrovenza Ventures** ("Akwaaba", "we", "us"), the **data controller** for the personal data described in this policy.
+Woezor Rides is a digital product operated by **Astrovenza Ventures** ("Woezor Rides", "we", "us"), the **data controller** for the personal data described in this policy.
 
 | | |
 |---|---|
@@ -28,14 +28,14 @@ Akwaaba is operated by **Astrovenza Ventures** ("Akwaaba", "we", "us"), the **da
 | UK representative (UK GDPR Art. 27) | [● name and address, or delete if not required] |
 | EU representative (GDPR Art. 27) | [● name and address, or delete if not required] |
 
-Drivers who use Akwaaba are independent operators. They are not our employees. When a traveller pays a driver, that payment is between the traveller and the driver. Akwaaba does not collect, hold or pass on fares.
+Drivers who use Woezor Rides are independent operators. They are not our employees. When a traveller pays a driver, that payment is between the traveller and the driver. Woezor Rides does not collect, hold or pass on fares.
 
 ## 2. Who this policy covers and which laws apply
 
 This policy covers:
 
 - **Travellers**: anyone who books a pickup, and the lead passenger named on a booking.
-- **Drivers**: people who apply to drive with Akwaaba, and approved drivers.
+- **Drivers**: people who apply to drive with Woezor Rides, and approved drivers.
 - **Visitors** to our website and web app.
 
 Staff and contractors receive a separate internal notice.
@@ -72,10 +72,10 @@ Act 843 s.27 requires us to tell you what we collect, whether you have to provid
 | Drop-off area and address or nearby landmark | You | Required | We cannot price the trip or tell the driver where to go |
 | Number of passengers, bags and extras (meet inside arrivals, child seat, extra stop) | You | Required (extras optional) | We cannot pick a vehicle that fits |
 | Confirmation that you are 18 or over, the privacy notice version you saw, and your marketing choice | You, on the booking form | Age confirmation required; marketing optional | We cannot take a booking from someone under 18 |
-| Booking code, fare, assigned driver and trip status | Created by Akwaaba | n/a | n/a |
+| Booking code, fare, assigned driver and trip status | Created by Woezor Rides | n/a | n/a |
 | Messages and the location pin you send your driver on WhatsApp | You, through WhatsApp | Optional | Your driver relies on the address you typed |
 
-**About WhatsApp.** After booking, we give you your driver's WhatsApp number and a ready-written message so you can send your exact drop-off location. Anything you send through WhatsApp goes directly to the driver through WhatsApp, which is run by WhatsApp LLC / Meta under its own privacy policy. Akwaaba does not receive or store those messages or locations.
+**About WhatsApp.** After booking, we give you your driver's WhatsApp number and a ready-written message so you can send your exact drop-off location. Anything you send through WhatsApp goes directly to the driver through WhatsApp, which is run by WhatsApp LLC / Meta under its own privacy policy. Woezor Rides does not receive or store those messages or locations.
 
 ### 4.2 Drivers
 
@@ -89,9 +89,9 @@ Act 843 s.27 requires us to tell you what we collect, whether you have to provid
 | Base airport | You | Required | We cannot send you pickups |
 | Subscription payment records (amount, date, Paystack reference, payment channel) | Paystack | Created when you pay | n/a |
 | If you pay us directly by mobile money or bank transfer: the transaction ID, the number or account you paid from, and a screenshot of the payment | You | Optional (you can pay through Paystack instead) | We cannot confirm a direct payment |
-| Trip history (bookings assigned to you, status changes and times) | Created by Akwaaba | n/a | n/a |
+| Trip history (bookings assigned to you, status changes and times) | Created by Woezor Rides | n/a | n/a |
 
-Criminal record information is **special personal data** under Act 843 s.37. We collect only the result of the check (for example "clear" or "not clear" and the date), we collect it only with your express consent, and we use it only to decide whether you can drive with Akwaaba. We do not keep copies of your ID or licence images after verification. See section 9.
+Criminal record information is **special personal data** under Act 843 s.37. We collect only the result of the check (for example "clear" or "not clear" and the date), we collect it only with your express consent, and we use it only to decide whether you can drive with Woezor Rides. We do not keep copies of your ID or licence images after verification. See section 9.
 
 ### 4.3 Technical and security data (everyone)
 
@@ -103,7 +103,7 @@ Drivers who sign in keep a sign-in session in their browser's storage. We do not
 
 - **Card numbers, mobile money PINs, payment tokens.** Drivers pay their subscription on Paystack's secure checkout, or directly to Astrovenza's mobile money or bank account. Paystack, a payment service provider licensed by the Bank of Ghana, handles the payment details. We receive only a payment reference, the amount, the date and the type of payment method (for example "mobile money"). For a direct payment we receive only what you send us (see 4.2). Never send us your PIN; we will never ask for it.
 - **Fares.** Travellers pay drivers directly. We do not process fare payments.
-- ▣{!gps} **Live location.** Akwaaba does not track the location of travellers or drivers.
+- ▣{!gps} **Live location.** Woezor Rides does not track the location of travellers or drivers.
 - **Data about children.** We do not ask for the names or details of children travelling. We only ask how many passengers there are and whether a child seat is needed. Bookings must be made by someone aged 18 or over.
 
 ### 4.5 ▣{gps|idv|masking|flights|sms} Additional features
@@ -133,7 +133,7 @@ Act 843 s.20 says personal data may be processed with the person's consent, or w
 | Prevent fraud and abuse: duplicate bookings, no-shows, fake accounts, attacks on the service | Phone number, booking history, technical data | Legitimate interest | 6(1)(f) |
 | Answer questions, complaints and disputes | Anything relevant to the issue | Contract or legitimate interest | 6(1)(b) or 6(1)(f) |
 | Meet legal duties: tax records, lawful requests from authorities | Payment and booking records | Required by law | 6(1)(c) |
-| Marketing messages about Akwaaba | Name, email or phone | **Your prior written consent** (s.40). You can withdraw it at any time | Consent, 6(1)(a) |
+| Marketing messages about Woezor Rides | Name, email or phone | **Your prior written consent** (s.40). You can withdraw it at any time | Consent, 6(1)(a) |
 
 We do not use your data for purposes unrelated to those above. If we need to use it for a new purpose, we will check that the new purpose is compatible (Act 843 s.25) and tell you first.
 
@@ -148,7 +148,7 @@ We do not use your data for purposes unrelated to those above. If we need to use
 
 <!-- Replace these phone number details with the masked-calls wording in section 4.5 when the masking feature is switched on. -->
 
-**Service providers (data processors)** that run parts of Akwaaba for us. Each acts only on our instructions under a written contract that requires confidentiality and security (Act 843 s.30; GDPR Art. 28):
+**Service providers (data processors)** that run parts of Woezor Rides for us. Each acts only on our instructions under a written contract that requires confidentiality and security (Act 843 s.30; GDPR Art. 28):
 
 | Provider | What they do | Data involved | Where |
 |---|---|---|---|
@@ -163,7 +163,7 @@ We do not use your data for purposes unrelated to those above. If we need to use
 
 **Authorities and others, when the law requires or safety demands.** We share data with the Ghana Police Service, courts, the Data Protection Commission, the Ghana Revenue Authority, the DVLA, Ghana Airports Company Limited or other airport operators, and security agencies, when a law, court order or lawful request requires it. We also share it where it is needed to protect someone's life or safety. We check that each request is lawful and share only what it needs.
 
-**If Akwaaba changes ownership.** If Astrovenza Ventures merges, is sold or transfers the Akwaaba business, your data may pass to the new owner, who must continue to protect it under this policy. We will tell you before that happens.
+**If Woezor Rides changes ownership.** If Astrovenza Ventures merges, is sold or transfers the Woezor Rides business, your data may pass to the new owner, who must continue to protect it under this policy. We will tell you before that happens.
 
 We **never sell** personal data.
 
@@ -217,7 +217,7 @@ Please keep your details accurate (Act 843 s.26). Travellers can correct a booki
 
 ## 11. Your rights
 
-| Right | Under Act 843 | Under GDPR / UK GDPR | How it works at Akwaaba |
+| Right | Under Act 843 | Under GDPR / UK GDPR | How it works at Woezor Rides |
 |---|---|---|---|
 | Know whether we hold your data and get a copy | s.32 | Art. 15 | We give you a copy of your data and tell you who it has been shared with |
 | Correct inaccurate or incomplete data | s.33 | Art. 16 | We correct it, or explain with evidence why we believe it is accurate |
@@ -247,7 +247,7 @@ We send marketing messages only if you have given us your prior written consent,
 
 ## 13. Children
 
-Akwaaba is for adults. Bookings must be made by someone aged 18 or over, and the booking form asks you to confirm this. We do not knowingly collect personal data about children. We ask only for the number of passengers and whether a child seat is needed. If you believe a child has given us personal data, contact us and we will delete it.
+Woezor Rides is for adults. Bookings must be made by someone aged 18 or over, and the booking form asks you to confirm this. We do not knowingly collect personal data about children. We ask only for the number of passengers and whether a child seat is needed. If you believe a child has given us personal data, contact us and we will delete it.
 
 ## 14. Cookies and browser storage
 
@@ -274,7 +274,7 @@ We will update this policy when our service or the law changes. If a change is s
 
 ## 17. Contact us
 
-**Astrovenza Ventures (Akwaaba)**
+**Astrovenza Ventures (Woezor Rides)**
 [● Registered address], Ghana
 Email: privacy@[●] / astrovenzav@gmail.com
 Data Protection Supervisor: [●]

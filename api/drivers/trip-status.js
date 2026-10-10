@@ -1,4 +1,4 @@
-// POST /api/drivers/trip-status   body: { "booking_code": "AKW-XXXX", "to": "waiting" | "met" | "enroute" | "done" | "no_show" }
+// POST /api/drivers/trip-status   body: { "booking_code": "WZR-XXXX", "to": "waiting" | "met" | "enroute" | "done" | "no_show" }
 // Moves the driver's own trip one step forward. Steps cannot be skipped or reversed.
 // "no_show" is allowed only from "waiting" and only once the free waiting time after landing has passed.
 import { db } from '../../lib/db.js';

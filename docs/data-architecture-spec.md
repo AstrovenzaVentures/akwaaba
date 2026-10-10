@@ -1,7 +1,7 @@
-# Akwaaba Data Management and Security Architecture Specification
+# Woezor Data Management and Security Architecture Specification
 
 **Owner:** Astrovenza Ventures (data controller)
-**Audience:** developers and operators of the Akwaaba codebase (`akwaaba-backend`)
+**Audience:** developers and operators of the Woezor codebase (`akwaaba-backend`)
 **Companion document:** `docs/privacy-policy.md`. Every behaviour described in the policy must be true in the code. When one changes, update the other.
 
 **Status legend used throughout**
@@ -32,8 +32,8 @@
 | Access within 40 days; reply to objections within 21 days | Act 843 s.35(10), s.39(2) | DSAR register with a 30-day due date (§12) |
 | Foreign data subjects: process per their home law | Act 843 s.18(2); GDPR Art. 3(2) | Apply GDPR-grade controls to everyone; one standard is simpler than two |
 | EU/UK representative if offering services to people there | GDPR / UK GDPR Art. 27 | **[LAUNCH]** Decide and document: appoint, or record why the Art. 27(2) exemption applies |
-| Payment services need a Bank of Ghana licence | Act 987 | Akwaaba does **not** provide payment services. Fares go traveller to driver; subscriptions are collected through Paystack (BoG PSP Enhanced licence). Keep it that way: never hold or route fares |
-| Critical Information Infrastructure duties (24-hour incident reporting) | Act 1038; CSA CII Directive (2021) | Applies only if Akwaaba is designated as CII, which is unlikely at this scale. Report incidents to CERT-GH voluntarily (§11) |
+| Payment services need a Bank of Ghana licence | Act 987 | Woezor does **not** provide payment services. Fares go traveller to driver; subscriptions are collected through Paystack (BoG PSP Enhanced licence). Keep it that way: never hold or route fares |
+| Critical Information Infrastructure duties (24-hour incident reporting) | Act 1038; CSA CII Directive (2021) | Applies only if Woezor is designated as CII, which is unlikely at this scale. Report incidents to CERT-GH voluntarily (§11) |
 
 ---
 
@@ -224,7 +224,7 @@ Put this directly above the **Book pickup** button:
 >
 > ☐ I am 18 or over. *(required)*
 >
-> ☐ Send me occasional offers from Akwaaba by email or SMS. *(optional, unticked)*
+> ☐ Send me occasional offers from Woezor by email or SMS. *(optional, unticked)*
 
 Implementation:
 - Store `privacy_notice_version` (for example `'1.0'`) on the booking.
@@ -237,7 +237,7 @@ Implementation:
 The onboarding form shows three separate, unticked items:
 
 1. **Privacy notice acknowledgement** (`purpose='privacy_notice'`). Required to continue.
-2. **Vetting consent** (`purpose='driver_vetting'`): "I agree that Akwaaba may check my Ghana Card, driver's licence, DVLA registration and police clearance, and keep the results (not copies of the documents) while I drive with Akwaaba and for 2 years after." Required for approval, because police clearance is special personal data under s.37. Link the event's id from each `driver_vetting` row.
+2. **Vetting consent** (`purpose='driver_vetting'`): "I agree that Woezor may check my Ghana Card, driver's licence, DVLA registration and police clearance, and keep the results (not copies of the documents) while I drive with Woezor and for 2 years after." Required for approval, because police clearance is special personal data under s.37. Link the event's id from each `driver_vetting` row.
 3. **Marketing** (`purpose='marketing'`). Optional.
 
 Withdrawal: a driver can withdraw vetting consent at any time. The system then sets `status='suspended'`, because the driver can no longer be approved, and tells the driver in plain words before they confirm.
@@ -259,7 +259,7 @@ After any consent change, show what was recorded and when: "Marketing messages: 
 ### 7.1 Current build **[BUILT]**
 
 - The app collects **no** location from anyone. The page's `Permissions-Policy` header sets `geolocation=()`, which blocks location access completely.
-- Travellers send their drop-off location to the driver themselves, through WhatsApp. That data never reaches Akwaaba.
+- Travellers send their drop-off location to the driver themselves, through WhatsApp. That data never reaches Woezor.
 
 ### 7.2 ▣ When live driver location is built **[PHASE 2]**
 
@@ -274,7 +274,7 @@ After any consent change, show what was recorded and when: "Marketing messages: 
 
 Platform rules:
 - **Web app (current):** the browser Geolocation API works only while the page is open and in the foreground. Use `watchPosition` from the **Start sharing** button and `clearWatch` on trip end. Change `Permissions-Policy` to `geolocation=(self)` only on `/driver`.
-- **Android (native, if built):** request `ACCESS_FINE_LOCATION` when the driver starts a trip. Avoid `ACCESS_BACKGROUND_LOCATION`; use a **foreground service of type `location`** with a persistent notification ("Akwaaba is sharing your location for trip AKW-7Q3K"). That keeps working when the screen is off, without the background permission, and passes Play Store review more easily.
+- **Android (native, if built):** request `ACCESS_FINE_LOCATION` when the driver starts a trip. Avoid `ACCESS_BACKGROUND_LOCATION`; use a **foreground service of type `location`** with a persistent notification ("Woezor is sharing your location for trip WZR-7Q3K"). That keeps working when the screen is off, without the background permission, and passes Play Store review more easily.
 - **iOS (native, if built):** request **When In Use** only, with `NSLocationWhenInUseUsageDescription` naming the purpose. Enable background location updates for active trips; iOS then shows the blue location indicator, which is the right transparency for drivers. Do not request **Always**.
 - **Revocation:** if the driver revokes permission mid-trip, the trip continues without location; the app shows "Location sharing is off", and dispatch never penalises the driver for it.
 - **Travellers:** never request a traveller's location.
@@ -337,7 +337,7 @@ Vercel Firewall rules (or Upstash rate-limit middleware):
     .replace(/\+?\d[\d\s-]{7,}\d/g, '[phone]')
     .replace(/[^\s@]+@[^\s@]+\.[^\s@]+/g, '[email]')
     .replace(/Key \(.*?\)=\(.*?\)/g, 'Key ([redacted])');
-  console.error('[akwaaba]', redact(err?.message || err));
+  console.error('[woezor]', redact(err?.message || err));
   ```
 - Set log retention to ≤ 90 days in Vercel and Supabase.
 
@@ -376,7 +376,7 @@ Real phone numbers are exchanged: the traveller receives the driver's WhatsApp n
 | Option | How it works | Pros | Cons |
 |---|---|---|---|
 | **A. Virtual numbers** (programmable-voice provider with Ghana numbers) | Each trip gets a temporary number pair; calls and SMS are bridged, so neither side sees the real number | Works on any phone, no app needed | Per-minute and number rental costs; confirm Ghana number availability with the provider |
-| **B. In-app calling and chat** (WebRTC, for example a hosted real-time voice SDK) | Calls and messages run inside the Akwaaba app; no phone numbers exchanged | Lowest cost per call; full control | Needs data on both sides (arriving travellers often have no local data plan yet) |
+| **B. In-app calling and chat** (WebRTC, for example a hosted real-time voice SDK) | Calls and messages run inside the Woezor app; no phone numbers exchanged | Lowest cost per call; full control | Needs data on both sides (arriving travellers often have no local data plan yet) |
 | **C. Both** | B by default, with A as fallback when there's no data | Best experience | Most build effort |
 
 **Recommended: C**, starting with A for the airport pickup itself, because travellers often have no local data on landing.
@@ -404,12 +404,12 @@ assigned ──(24 h before landing)──▶ session_open ──(trip done/no_s
 | Communications | [● director] | Drafts notices to people, regulators and drivers |
 | Legal adviser | [● Ghana counsel] | Advises on notification duties |
 
-### 11.2 Timeline (T = when Akwaaba becomes aware)
+### 11.2 Timeline (T = when Woezor becomes aware)
 
 | When | Action |
 |---|---|
 | T + 1 h | Open an incident record (what, when, how found). Contain: rotate exposed keys (Paystack, Supabase service role, `PII_*` keys), revoke sessions, block attackers' IPs, disable affected endpoints |
-| T + 24 h | Scope: which tables and rows, how many people, which countries (UK/EU people mean GDPR duties). Preserve logs. Report cyber incidents to **CERT-GH** (Cyber Security Authority): report@csa.gov.gh, SMS **292**, or https://csa.gov.gh/report. If Akwaaba has been designated CII, this report is mandatory within 24 hours |
+| T + 24 h | Scope: which tables and rows, how many people, which countries (UK/EU people mean GDPR duties). Preserve logs. Report cyber incidents to **CERT-GH** (Cyber Security Authority): report@csa.gov.gh, SMS **292**, or https://csa.gov.gh/report. If Woezor has been designated CII, this report is mandatory within 24 hours |
 | T + 72 h (target) | Notify the **Data Protection Commission** (Act 843 s.31: "as soon as reasonably practicable"). Where GDPR or UK GDPR applies: notify the **ICO** or the relevant EU authority **within 72 hours** (Art. 33), unless the breach is unlikely to result in risk. Notify **affected people** (Act 843 s.31 in all cases; GDPR Art. 34 where the risk is high) |
 | T + 30 days | Post-incident review: root cause, fixes, policy and spec updates |
 
@@ -417,12 +417,12 @@ Notify affected people by SMS or email, or on the website or in the media if con
 
 ### 11.3 Notice template (people affected)
 
-> **Subject: Important: your Akwaaba data**
-> On [date] we discovered that [what happened, in one sentence]. The information involved was [list]. [Payment card or mobile money details were not involved, because Akwaaba does not hold them.] We have [what we did]. To protect yourself, [specific steps, for example: be cautious of calls claiming to be from Akwaaba asking for money]. If we know who obtained the data, we will tell you. Questions: privacy@[●]. You can also complain to the Data Protection Commission (dataprotection.org.gh).
+> **Subject: Important: your Woezor data**
+> On [date] we discovered that [what happened, in one sentence]. The information involved was [list]. [Payment card or mobile money details were not involved, because Woezor does not hold them.] We have [what we did]. To protect yourself, [specific steps, for example: be cautious of calls claiming to be from Woezor asking for money]. If we know who obtained the data, we will tell you. Questions: privacy@[●]. You can also complain to the Data Protection Commission (dataprotection.org.gh).
 
 ### 11.4 Processors
 
-Contracts must require Supabase, Vercel, Paystack and the SMS, verification and telephony providers to tell Akwaaba of any breach affecting our data **without undue delay**, and in any case within 48 hours, so we can meet our own 72-hour target.
+Contracts must require Supabase, Vercel, Paystack and the SMS, verification and telephony providers to tell Woezor of any breach affecting our data **without undue delay**, and in any case within 48 hours, so we can meet our own 72-hour target.
 
 ---
 

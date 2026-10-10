@@ -8,7 +8,7 @@ async function check(attempt = 0) {
     const out = await res.json();
     if (out.status === 'paid') {
       $('#title').textContent = 'Subscription paid';
-      $('#body').textContent = 'Your Akwaaba subscription is active for another 30 days. You will receive pickups for your vehicle.';
+      $('#body').textContent = 'Your Woezor subscription is active for another 30 days. You will receive pickups for your vehicle.';
       return;
     }
     if (out.status === 'pending' && attempt < 6) { setTimeout(() => check(attempt + 1), 2500); return; }

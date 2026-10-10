@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Akwaaba Driver</title>
+<title>Woezor Driver</title>
 <link rel="stylesheet" href="/fonts.css">
 <link rel="stylesheet" href="/styles.css">
 <script src="/vendor/supabase.js"></script>
@@ -12,7 +12,7 @@
 <div class="app">
   <header class="top">
     <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
-    <div><h1>Akwaaba Driver</h1><p>Your pickups and subscription</p></div>
+    <div><h1>Woezor Driver</h1><p>Your pickups and subscription</p></div>
   </header>
 
   <!-- Sign in with phone number and SMS code -->
@@ -28,17 +28,17 @@
       <button class="btn btn-dark btn-block" type="submit">Sign in</button>
     </form>
     <p class="err" id="signErr" hidden></p>
-    <p class="hint">New driver? <a href="/apply">Apply to drive with Akwaaba</a>.</p>
+    <p class="hint">New driver? <a href="/apply">Apply to drive with Woezor</a>.</p>
   </section>
 
   <!-- Shown once per privacy notice version, before the driver's pickups -->
   <section class="panel" id="privacyCard" style="max-width:640px;width:100%;margin:0 auto" hidden>
     <h2>Before you start</h2>
     <div class="consent">
-      <p>Akwaaba shares your name, car, registration plate and WhatsApp number with each traveller you are assigned, so they can find and contact you. You see your passenger's name, phone number and drop-off address. Passenger details disappear from Akwaaba 90 days after the trip. Your account and trip history are kept while you drive with us and for 2 years after. <a href="/privacy" target="_blank" rel="noopener">Read the full privacy policy</a></p>
+      <p>Woezor shares your name, car, registration plate and WhatsApp number with each traveller you are assigned, so they can find and contact you. You see your passenger's name, phone number and drop-off address. Passenger details disappear from Woezor 90 days after the trip. Your account and trip history are kept while you drive with us and for 2 years after. <a href="/privacy" target="_blank" rel="noopener">Read the full privacy policy</a></p>
       <label class="check"><input type="checkbox" id="ackNotice"> <span>I have read the privacy notice. <small>(required)</small></span></label>
-      <label class="check"><input type="checkbox" id="ackVetting"> <span>I agree that Akwaaba may check my Ghana Card, driver's licence, DVLA registration and police clearance, and keep the results (not copies of the documents) while I drive with Akwaaba and for 2 years after. <small>(required to receive pickups)</small></span></label>
-      <label class="check"><input type="checkbox" id="ackMarketing"> <span>Send me news and offers from Akwaaba by SMS or email. <small>(optional)</small></span></label>
+      <label class="check"><input type="checkbox" id="ackVetting"> <span>I agree that Woezor may check my Ghana Card, driver's licence, DVLA registration and police clearance, and keep the results (not copies of the documents) while I drive with Woezor and for 2 years after. <small>(required to receive pickups)</small></span></label>
+      <label class="check"><input type="checkbox" id="ackMarketing"> <span>Send me news and offers from Woezor by SMS or email. <small>(optional)</small></span></label>
     </div>
     <p class="hint">You can withdraw your consent at any time by emailing astrovenzav@gmail.com. If you withdraw consent to vetting checks, we can no longer send you pickups.</p>
     <button class="btn btn-dark btn-block" id="ackBtn" type="button">Continue</button>
@@ -64,13 +64,13 @@
           <label class="f">Paid from (number or account) <input id="payer" autocomplete="off" placeholder="e.g. 024 411 2087" maxlength="40"></label>
           <label class="f full">Screenshot of the payment <input type="file" id="proof" accept="image/*"></label>
         </div>
-        <p class="hint">Only Akwaaba staff see your screenshot. We delete it 90 days after we check it.</p>
+        <p class="hint">Only Woezor staff see your screenshot. We delete it 90 days after we check it.</p>
         <p class="err" id="directErr" hidden></p>
         <div class="actions"><button class="btn btn-sign" id="directSend" type="submit">Send for checking</button><button class="btn btn-ghost" id="directCancel" type="button">Cancel</button></div>
       </form>
     </section>
 
-    <div class="note"><strong>Fares:</strong> passengers pay you directly when you meet them, in cash or by mobile money to your own number. You keep the whole fare. Akwaaba only charges the GHS 100 monthly subscription.</div>
+    <div class="note"><strong>Fares:</strong> passengers pay you directly when you meet them, in cash or by mobile money to your own number. You keep the whole fare. Woezor only charges the GHS 100 monthly subscription.</div>
 
     <div class="grid2">
       <section class="panel">
@@ -87,7 +87,7 @@
     <button class="btn btn-ghost" id="signOut" type="button">Sign out</button>
   </div>
   <p class="err" id="appErr" hidden></p>
-  <footer>Akwaaba is a service of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
+  <footer>Woezor Rides is a digital product of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
 </div>
 <script type="module" src="/driver.js"></script>
 </body>

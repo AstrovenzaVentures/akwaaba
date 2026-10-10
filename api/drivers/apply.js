@@ -27,8 +27,8 @@ export async function POST(request) {
       base_airport: a.baseAirport, status: 'pending_review'
     });
     if (insErr) {
-      if (/phone/.test(insErr.message)) return json(409, { error: 'That WhatsApp number is already registered with Akwaaba.' });
-      if (/plate/.test(insErr.message)) return json(409, { error: 'That registration plate is already registered with Akwaaba.' });
+      if (/phone/.test(insErr.message)) return json(409, { error: 'That WhatsApp number is already registered with Woezor.' });
+      if (/plate/.test(insErr.message)) return json(409, { error: 'That registration plate is already registered with Woezor.' });
       throw new Error('driver insert failed: ' + insErr.message);
     }
 

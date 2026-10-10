@@ -19,7 +19,7 @@ test('webhook signature: accepts genuine, rejects tampered, wrong key, missing, 
 
 test('references are unique and match the verify endpoint pattern', () => {
   assert.notEqual(newReference('SUB'), newReference('SUB'));
-  assert.match(newReference('SUB'), /^AKW_SUB_[a-f0-9]{32}$/);
+  assert.match(newReference('SUB'), /^WZR_SUB_[a-f0-9]{32}$/);
 });
 
 const future = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);

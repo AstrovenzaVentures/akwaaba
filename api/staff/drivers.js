@@ -48,7 +48,7 @@ export async function GET(request) {
     }
 
     // Direct payments waiting for a decision, each with a 10-minute private link to the screenshot.
-    await purgeOldProofs().catch((e) => console.error('[akwaaba] purge', e?.message));
+    await purgeOldProofs().catch((e) => console.error('[woezor] purge', e?.message));
     const { data: claims } = await db().from('payments')
       .select('reference, driver_id, method, manual_txn_id, payer_account, amount_pesewas, proof_path, created_at')
       .eq('status', 'submitted').order('created_at').limit(100);
@@ -127,7 +127,7 @@ async function decidePayment(staff, body) {
   const reference = clean(body.payment_reference, 60);
   const action = clean(body.action, 20);
   const note = clean(body.note, 300);
-  if (!/^AKW_MAN_[0-9a-f]{32}$/.test(reference) || !['confirm_payment', 'reject_payment'].includes(action)) {
+  if (!/^(AKW|WZR)_MAN_[0-9a-f]{32}$/.test(reference) || !['confirm_payment', 'reject_payment'].includes(action)) {
     return json(400, { error: 'Invalid request.' });
   }
   const approve = action === 'confirm_payment';

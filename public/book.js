@@ -67,7 +67,7 @@ async function refreshQuote() {
     $('#bookBtn').disabled = false;
     $('#bookBtn').textContent = 'Book pickup, pay driver on arrival';
   } catch {
-    showErr('We could not reach Akwaaba. Check your connection and try again.');
+    showErr('We could not reach Woezor. Check your connection and try again.');
   }
 }
 
@@ -91,7 +91,7 @@ $('#bookBtn').addEventListener('click', async () => {
     const out = await res.json();
     if (!res.ok) { showErr(out.error); return; }
     const d = out.driver;
-    const msg = `Hello ${d.name}, this is ${body.passenger_name} (Akwaaba booking ${out.booking_code}, flight ${body.flight.toUpperCase()} into ${out.fare.airport_name}). ` +
+    const msg = `Hello ${d.name}, this is ${body.passenger_name} (Woezor booking ${out.booking_code}, flight ${body.flight.toUpperCase()} into ${out.fare.airport_name}). ` +
       `My drop-off is ${body.dest_address}, ${out.fare.area}. I am sending my exact location now.`;
     $('#bookingArea').hidden = true;
     $('#doneArea').hidden = false;
@@ -108,7 +108,7 @@ $('#bookBtn').addEventListener('click', async () => {
       </div>
       <p class="hint">Keep your booking code. Your driver will hold a sign with your name at the arrivals exit.</p>`;
   } catch {
-    showErr('We could not reach Akwaaba. Check your connection and try again.');
+    showErr('We could not reach Woezor. Check your connection and try again.');
   } finally {
     $('#bookBtn').disabled = false;
   }

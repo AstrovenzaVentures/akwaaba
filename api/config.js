@@ -13,8 +13,8 @@ export function isSecretKey(key) {
 export function GET() {
   const key = process.env.SUPABASE_ANON_KEY || '';
   if (isSecretKey(key)) {
-    console.error('[akwaaba] SUPABASE_ANON_KEY holds a secret key; refusing to send it. Put the publishable/anon key there.');
-    return json(500, { error: 'Akwaaba is being set up. Please try again shortly.' });
+    console.error('[woezor] SUPABASE_ANON_KEY holds a secret key; refusing to send it. Put the publishable/anon key there.');
+    return json(500, { error: 'Woezor is being set up. Please try again shortly.' });
   }
   return json(200, { supabaseUrl: process.env.SUPABASE_URL || '', supabaseAnonKey: key });
 }

@@ -40,7 +40,7 @@ async function secondStep() {
   } else {
     // Remove half-finished enrolments, then enrol a new authenticator.
     for (const x of f.all.filter((x) => x.status !== 'verified')) await sb.auth.mfa.unenroll({ factorId: x.id });
-    const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Akwaaba staff' });
+    const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Woezor staff' });
     if (error) return showErr('#signErr', 'Could not set up the authenticator. Check that TOTP is enabled in Supabase.');
     factorId = data.id;
     $('#qr').src = data.totp.qr_code;

@@ -47,8 +47,8 @@ fs.writeFileSync(at('public/privacy.html'), `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Akwaaba Privacy Policy</title>
-<meta name="description" content="How Astrovenza Ventures collects, uses and protects personal data on Akwaaba airport pickups.">
+<title>Woezor Rides Privacy Policy</title>
+<meta name="description" content="How Astrovenza Ventures collects, uses and protects personal data on Woezor Rides airport pickups.">
 <link rel="stylesheet" href="/fonts.css">
 <link rel="stylesheet" href="/styles.css">
 </head>
@@ -56,13 +56,13 @@ fs.writeFileSync(at('public/privacy.html'), `<!doctype html>
 <div class="app">
   <header class="top">
     <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>
-    <div><h1>Akwaaba</h1><p><a href="/">Book a pickup</a> · <a href="/driver">Driver app</a></p></div>
+    <div><h1>Woezor</h1><p><a href="/">Book a pickup</a> · <a href="/driver">Driver app</a></p></div>
   </header>
   ${draft}
   <article class="panel policy">
 ${body}
   </article>
-  <footer>Akwaaba is a service of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
+  <footer>Woezor Rides is a digital product of Astrovenza Ventures, Ghana. Contact: astrovenzav@gmail.com · <a href="/privacy">Privacy policy</a></footer>
 </div>
 </body>
 </html>

@@ -8,7 +8,7 @@ import { json, handle } from '../../lib/http.js';
 export async function GET(request) {
   return handle(async () => {
     const reference = new URL(request.url).searchParams.get('reference') || '';
-    if (!/^AKW_SUB_[a-f0-9]{32}$/.test(reference)) return json(400, { error: 'Invalid payment reference.' });
+    if (!/^(AKW|WZR)_SUB_[a-f0-9]{32}$/.test(reference)) return json(400, { error: 'Invalid payment reference.' });
 
     let { data: p } = await db().from('payments').select('status').eq('reference', reference).maybeSingle();
     if (!p) return json(404, { error: 'Payment not found.' });

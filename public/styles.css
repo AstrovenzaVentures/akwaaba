@@ -1,4 +1,4 @@
-/* Akwaaba: airport wayfinding signage (yellow on charcoal), departure-board data strips */
+/* Woezor: airport wayfinding signage (yellow on charcoal), departure-board data strips */
 :root {
   --bg: #EEF0EE; --surface: #FFFFFF; --ink: #16191D; --muted: #5B626B; --line: #D6DAD7;
   --sign: #FFC72C; --sign-ink: #16191D; --board: #1B1F24; --board-ink: #F7C843; --board-dim: #8E949C;

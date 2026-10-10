@@ -1,4 +1,4 @@
-# Akwaaba
+# Woezor
 
 Pre-booked airport pickups in Ghana from **Kotoka International Airport, Accra (ACC)** and **Prempeh I International Airport, Kumasi (KMS)**. A service of **Astrovenza Ventures** (astrovenzav@gmail.com).
 
@@ -21,7 +21,7 @@ Setup: run `supabase/migrations/006_manual_payments.sql`. Then in **Table Editor
 
 - **Travellers book for free and pay the driver directly when they meet**, in cash or by mobile money to the driver's own number. No advance payment, no deposit.
 - **Drivers keep 100% of every fare.**
-- **Astrovenza Ventures collects only the GHS 100 monthly driver subscription**, paid through Paystack or directly to Astrovenza's MoMo or bank account (confirmed by staff). No fare money ever passes through Akwaaba, so there are no fare refunds, chargebacks or payouts to manage.
+- **Astrovenza Ventures collects only the GHS 100 monthly driver subscription**, paid through Paystack or directly to Astrovenza's MoMo or bank account (confirmed by staff). No fare money ever passes through Woezor, so there are no fare refunds, chargebacks or payouts to manage.
 
 ## What is in this project
 
@@ -35,7 +35,7 @@ api/                  Server functions (Vercel)
   areas.js                    Drop-off areas grouped by zone
   quote.js                    Fare for an area, vehicle and extras
   bookings/initialize.js      Prices the trip, reserves a subscribed driver, confirms the booking
-  subscriptions/initialize.js Driver pays GHS 100 (the only payment Akwaaba takes)
+  subscriptions/initialize.js Driver pays GHS 100 (the only payment Woezor takes)
   paystack/webhook.js         Paystack subscription payment notifications
   payments/verify.js          Subscription payment status for the payment-complete page
   drivers/trips.js            The signed-in driver's own pickups
@@ -78,7 +78,7 @@ No Google Maps account or API keys are needed.
 1. Create a project in West Europe (London), `eu-west-2`, to match the server region in `vercel.json`. In **SQL Editor**, run `supabase/schema.sql`, then the files in `supabase/migrations/` in number order (004 needs the pg_cron extension).
 2. **Authentication > Sign In / Providers**: keep **Email** on (drivers and staff both sign in by email). Phone/SMS is optional and paid; leave it off until you want SMS codes.
 3. **Authentication > Multi-Factor**: enable **TOTP** for staff.
-4. **Authentication > Emails > SMTP Settings**: turn on custom SMTP (Supabase's built-in sender only reaches your own team's addresses). Free option: Gmail, host `smtp.gmail.com`, port `465`, user `astrovenzav@gmail.com`, password = a Google **app password**. Then in **Emails > Templates > Magic Link**, make the message show the code: `Your Akwaaba sign-in code is {{ .Token }}. It expires in 10 minutes. Never share it.`
+4. **Authentication > Emails > SMTP Settings**: turn on custom SMTP (Supabase's built-in sender only reaches your own team's addresses). Free option: Gmail, host `smtp.gmail.com`, port `465`, user `astrovenzav@gmail.com`, password = a Google **app password**. Then in **Emails > Templates > Magic Link**, make the message show the code: `Your Woezor sign-in code is {{ .Token }}. It expires in 10 minutes. Never share it.`
 5. Add each driver after checking their licence, DVLA sticker and vehicle papers: create the user with their **email** in **Authentication > Users** (Add user > Create new user, tick Auto Confirm), then
    ```sql
    insert into drivers (id, name, phone, email, vehicle_type, vehicle_model, plate, base_airport, status)

@@ -1,7 +1,7 @@
--- Akwaaba database schema (Supabase / Postgres)
+-- Woezor database schema (Supabase / Postgres)
 -- Run once in Supabase > SQL Editor. Owner: Astrovenza Ventures.
 -- Money model: Astrovenza collects only the GHS 100 driver subscription (through Paystack).
--- Travellers pay the driver directly on arrival, in cash or mobile money. No fare money passes through Akwaaba.
+-- Travellers pay the driver directly on arrival, in cash or mobile money. No fare money passes through Woezor.
 
 -- ---------- Tables ----------
 

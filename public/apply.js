@@ -17,7 +17,7 @@ const step = (id) => { for (const s of ['#emailForm', '#codeForm', '#applyForm',
 async function showForm() {
   // Someone who already has a driver profile goes to the driver app instead.
   const res = await fetch('/api/drivers/trips', { headers: { Authorization: `Bearer ${session.access_token}` } });
-  if (res.ok) { step('#done'); $('#done h2').textContent = 'You already have an Akwaaba driver account'; $('#done p').textContent = 'Open the driver app to see your status.'; return; }
+  if (res.ok) { step('#done'); $('#done h2').textContent = 'You already have a Woezor driver account'; $('#done p').textContent = 'Open the driver app to see your status.'; return; }
   $('#signedAs').textContent = `Signed in as ${session.user.email}`;
   step('#applyForm');
 }
@@ -65,7 +65,7 @@ $('#applyForm').addEventListener('submit', async (e) => {
     if (!res.ok) return showErr(out.error);
     step('#done');
   } catch {
-    showErr('We could not reach Akwaaba. Check your connection and try again.');
+    showErr('We could not reach Woezor. Check your connection and try again.');
   } finally { $('#applyBtn').disabled = false; }
 });
 

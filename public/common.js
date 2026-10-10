@@ -1,4 +1,4 @@
-// Shared helpers for the Akwaaba pages.
+// Shared helpers for the Woezor pages.
 export async function loadConfig() {
   const res = await fetch('/api/config');
   return res.json();

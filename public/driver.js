@@ -197,7 +197,7 @@ function selectTrip(code) {
   if (!selected) return;
   renderTrips();
   const t = selected;
-  const hello = `Hello ${t.passenger_name}, this is ${data.driver.name}, your Akwaaba driver for booking ${t.code} (flight ${t.flight}). ` +
+  const hello = `Hello ${t.passenger_name}, this is ${data.driver.name}, your Woezor driver for booking ${t.code} (flight ${t.flight}). ` +
     `Please send me your exact drop-off location here on WhatsApp.`;
   $('#tripTitle').textContent = `Pickup · ${t.code}`;
   $('#tripDetail').innerHTML = `
@@ -248,7 +248,7 @@ async function start() {
   $('#signIn').hidden = true;
   $('#appArea').hidden = false;
   try { await load(); }
-  catch (err) { showErr('#appErr', err.message === 'Sign in as a driver.' ? 'This email is not registered as an Akwaaba driver yet. Apply at akwaabaaapp.vercel.app/apply.' : err.message); return; }
+  catch (err) { showErr('#appErr', err.message === 'Sign in as a driver.' ? 'This email is not registered as a Woezor driver yet. Apply at akwaabaaapp.vercel.app/apply.' : err.message); return; }
   const next = data.privacy.acknowledged && (data.trips.find((t) => !['done', 'no_show'].includes(t.status)) || data.trips[0]);
   if (next) selectTrip(next.code);
   setInterval(() => load().catch(() => {}), 60000); // pick up new pickups every minute

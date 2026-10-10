@@ -60,13 +60,13 @@ test('published policy: optional clauses follow the feature switches', () => {
   const off = renderPolicySource(policy, { encryption: true });
   assert.ok(!/▣|Before publishing/.test(off));
   assert.ok(!/Live trip location|Masked calls|Flight tracking/.test(off), 'unbuilt features are not described');
-  assert.match(off, /Akwaaba does not track the location/);
+  assert.match(off, /Woezor Rides does not track the location/);
   assert.match(off, /additional encryption of travellers/);
 
   const gps = renderPolicySource(policy, { encryption: true, gps: true });
   assert.match(gps, /Live trip location/);
   assert.match(gps, /Detailed trip location points/);
-  assert.ok(!/Akwaaba does not track the location/.test(gps), 'the "no location" statement goes when location is live');
+  assert.ok(!/Woezor Rides does not track the location/.test(gps), 'the "no location" statement goes when location is live');
   assert.match(gps, /Booking and contact and location data/);
 });
 

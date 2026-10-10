@@ -1,8 +1,8 @@
 {
-  "name": "akwaaba-backend",
+  "name": "woezor-rides",
   "version": "0.1.0",
   "private": true,
-  "description": "Payments backend for Akwaaba airport pickups (Astrovenza Ventures)",
+  "description": "Payments backend for Woezor Rides airport pickups (Astrovenza Ventures)",
   "type": "module",
   "engines": {
     "node": ">=20"
