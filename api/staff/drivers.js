@@ -30,6 +30,23 @@ export async function GET(request) {
         .in('driver_id', drivers.slice(i, i + 100).map((d) => d.id));
       checks.push(...(data || []));
     }
+    // Payment history (paid, rejected or flagged; newest first), 100 drivers per request.
+    const history = [];
+    for (let i = 0; i < drivers.length; i += 100) {
+      const { data } = await db().from('payments')
+        .select('driver_id, method, status, amount_pesewas, paid_at, created_at, reviewed_by, reviewed_at, manual_txn_id, reject_reason')
+        .in('driver_id', drivers.slice(i, i + 100).map((d) => d.id))
+        .in('status', ['success', 'rejected', 'flagged'])
+        .order('created_at', { ascending: false }).limit(2000);
+      history.push(...(data || []));
+    }
+    // Who confirmed or rejected: staff emails, looked up once per reviewer.
+    const reviewers = {};
+    for (const id of [...new Set(history.map((h) => h.reviewed_by).filter(Boolean))]) {
+      const { data } = await db().auth.admin.getUserById(id).catch(() => ({ data: null }));
+      reviewers[id] = data?.user?.email || 'staff';
+    }
+
     // Direct payments waiting for a decision, each with a 10-minute private link to the screenshot.
     await purgeOldProofs().catch((e) => console.error('[akwaaba] purge', e?.message));
     const { data: claims } = await db().from('payments')
@@ -50,7 +67,9 @@ export async function GET(request) {
       drivers: drivers.map((d) => ({
         ...d,
         subscription_active: !!d.sub_until && new Date(d.sub_until).getTime() > now,
-        checks: checks.filter((c) => c.driver_id === d.id).map(({ driver_id, ...c }) => c)
+        checks: checks.filter((c) => c.driver_id === d.id).map(({ driver_id, ...c }) => c),
+        payments: history.filter((h) => h.driver_id === d.id).slice(0, 24)
+          .map(({ driver_id, reviewed_by, ...h }) => ({ ...h, reviewed_by: reviewed_by ? reviewers[reviewed_by] : null }))
       }))
     });
   });

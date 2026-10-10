@@ -2,7 +2,7 @@
 :root {
   --bg: #EEF0EE; --surface: #FFFFFF; --ink: #16191D; --muted: #5B626B; --line: #D6DAD7;
   --sign: #FFC72C; --sign-ink: #16191D; --board: #1B1F24; --board-ink: #F7C843; --board-dim: #8E949C;
-  --ok: #1E7A4C; --ok-soft: #E2F1E8; --bad: #B0362A; --bad-soft: #F8E4E1; --focus: #2F6FDB;
+  --ok: #1E7A4C; --ok-soft: #E2F1E8; --warn: #9A5B00; --warn-soft: #FFF1D6; --bad: #B0362A; --bad-soft: #F8E4E1; --focus: #2F6FDB;
   --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --body: 'IBM Plex Sans', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -10,7 +10,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #111316; --surface: #1A1D21; --ink: #ECEDEA; --muted: #9BA1A9; --line: #2D3137;
-    --board: #0B0C0E; --board-dim: #7D838B; --ok: #5CC08C; --ok-soft: #173326; --bad: #EE7B6E; --bad-soft: #3B1C19; --focus: #7AA7F5;
+    --board: #0B0C0E; --board-dim: #7D838B; --ok: #5CC08C; --ok-soft: #173326; --warn: #F0B45A; --warn-soft: #3A2A10; --bad: #EE7B6E; --bad-soft: #3B1C19; --focus: #7AA7F5;
     color-scheme: dark;
   }
 }
@@ -76,6 +76,16 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .pill.bad { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
 .sub { border: 2px solid var(--ink); border-radius: 10px; padding: 14px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
 .sub.expired { border-color: var(--bad); background: var(--bad-soft); }
+.sub.soon { border-color: var(--warn); background: var(--warn-soft); }
+.sub.active { border-color: var(--ok); }
+.sub-state { font-weight: 600; }
+.sub-state.active { color: var(--ok); } .sub-state.soon { color: var(--warn); } .sub-state.expired, .sub-state.never { color: var(--bad); }
+details.history { border-top: 1px solid var(--line); padding-top: 8px; }
+details.history summary { cursor: pointer; font-size: 13.5px; color: var(--muted); }
+table.hist { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+table.hist th, table.hist td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.hist th { color: var(--muted); font-weight: 500; }
+.hist-wrap { overflow-x: auto; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .actions .btn { flex: 1; min-width: 150px; }
 footer { color: var(--muted); font-size: 12px; text-align: center; }

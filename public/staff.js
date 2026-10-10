@@ -1,4 +1,4 @@
-import { loadConfig, esc } from '/common.js';
+import { loadConfig, esc, subStatus, fmtDay, fmtWhen } from '/common.js';
 
 const $ = (s) => document.querySelector(s);
 const showErr = (el, msg) => { $(el).textContent = msg || ''; $(el).hidden = !msg; };
@@ -59,7 +59,14 @@ $('#mfaForm').addEventListener('submit', async (e) => {
 
 // ---------- Applications ----------
 function card(d, kind) {
-  const sub = d.subscription_active ? `Paid until ${new Date(d.sub_until).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : 'No active subscription';
+  const st = subStatus(d.sub_until);
+  const left = st.days === 1 ? '1 day' : `${st.days} days`;
+  const sub = `<span class="sub-state ${st.state}">${{
+    active: `Active · expires in ${left} (${st.until && fmtDay(st.until)})`,
+    soon: `Expires in ${left} (${st.until && fmtDay(st.until)})`,
+    expired: `Expired on ${st.until && fmtDay(st.until)} · no new pickups`,
+    never: 'Never paid · no pickups'
+  }[st.state]}</span>${history(d.payments || [])}`;
   const head = `<div class="row"><strong>${esc(d.name)}</strong><span class="pill">${esc(AIRPORT[d.base_airport] || d.base_airport)}</span></div>
     <span class="hint">${esc(d.vehicle_model || '')} · ${esc(d.vehicle_type)} · <span style="font-family:var(--mono)">${esc(d.plate)}</span></span>
     <span class="hint">${esc(d.phone)} · ${esc(d.email)} · applied ${new Date(d.created_at).toLocaleDateString('en-GB')}</span>`;
@@ -68,7 +75,7 @@ function card(d, kind) {
       <div style="display:grid;gap:6px">${CHECKS.map(([k, label]) => `<label class="check"><input type="checkbox" value="${k}"> ${label}</label>`).join('')}</div>
       <div class="actions"><button class="btn btn-sign" data-act="approve" type="button">Approve</button><button class="btn btn-ghost" data-act="suspend" type="button">Decline</button></div></div>`;
   }
-  return `<div class="trip" style="cursor:default" data-id="${d.id}">${head}<span class="hint">${sub}</span>
+  return `<div class="trip" style="cursor:default" data-id="${d.id}">${head}<div style="display:grid;gap:6px;font-size:14px">${sub}</div>
     <div class="actions">${kind === 'approved' ? '<button class="btn btn-ghost" data-act="suspend" type="button">Suspend</button>' : '<button class="btn btn-ghost" data-act="reinstate" type="button">Reinstate</button>'}</div></div>`;
 }
 
@@ -82,6 +89,20 @@ function paymentCard(p) {
     <span>Paid from: <strong style="font-family:var(--mono);user-select:all">${esc(p.payer_account)}</strong></span>
     ${p.proof_url ? `<a href="${esc(p.proof_url)}" target="_blank" rel="noopener noreferrer"><img src="${esc(p.proof_url)}" alt="Payment screenshot" style="max-width:260px;max-height:420px;border-radius:8px;border:1px solid var(--line,#ddd)"></a>` : '<span class="hint">No screenshot.</span>'}
     <div class="actions"><button class="btn btn-sign" data-pay="confirm_payment" type="button">Confirm: found on statement</button><button class="btn btn-ghost" data-pay="reject_payment" type="button">Reject</button></div></div>`;
+}
+
+const STATUS = { success: 'Paid', rejected: 'Rejected', flagged: 'Flagged (wrong amount)' };
+function history(list) {
+  if (!list.length) return '';
+  const rows = list.map((p) => {
+    const via = p.method === 'paystack' ? 'Paystack' : (METHOD[p.method] || p.method);
+    const who = p.method === 'paystack' ? 'Automatic' : p.reviewed_by ? `${esc(p.reviewed_by)}${p.reviewed_at ? `, ${fmtWhen(p.reviewed_at)}` : ''}` : '';
+    const note = p.status === 'rejected' ? esc(p.reject_reason || '') : p.manual_txn_id ? `ID <span style="font-family:var(--mono)">${esc(p.manual_txn_id)}</span>` : '';
+    return `<tr><td>${fmtDay(p.paid_at || p.created_at)}</td><td>${esc(via)}</td><td>${STATUS[p.status] || esc(p.status)} · GHS ${(p.amount_pesewas / 100).toFixed(0)}</td><td>${who}</td><td>${note}</td></tr>`;
+  }).join('');
+  const paid = list.filter((p) => p.status === 'success').length;
+  return `<details class="history"><summary>Payment history: ${paid} paid${list.length > paid ? `, ${list.length - paid} other` : ''}</summary>
+    <div class="hist-wrap"><table class="hist"><thead><tr><th>Date</th><th>Method</th><th>Result</th><th>Confirmed by</th><th>Note</th></tr></thead><tbody>${rows}</tbody></table></div></details>`;
 }
 
 async function load() {

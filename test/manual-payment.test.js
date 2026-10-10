@@ -46,6 +46,7 @@ function from(table) {
 }
 const fakeDb = {
   from,
+  auth: { admin: { getUserById: async (id) => ({ data: { user: { email: id === 's1' ? 'astrovenzav@gmail.com' : 'x@y.z' } } }) } },
   rpc: async (name, args) => { rpcCalls.push({ name, args }); return { data: rpcResult, error: null }; },
   storage: { from: () => ({
     upload: async (path, buf, opts) => { storage.uploads.push({ path, bytes: buf.length, type: opts.contentType }); return { error: null }; },
@@ -164,4 +165,19 @@ test('the driver app gets the accounts and the latest claim; unapproved drivers 
   driver = { ...freshDriver(), status: 'pending_review' };
   out = await (await trips(new Request('http://x/api'))).json();
   assert.deepEqual(out.payment.accounts, []);
+});
+
+test('staff see each driver\'s payment history with who confirmed it', async () => {
+  reset();
+  staff = { user_id: 's1', role: 'admin', email: 'astrovenzav@gmail.com' };
+  T.drivers = [{ id: 'd1', name: 'Kwame', phone: '+233244112087', plate: 'GR 1', status: 'approved', sub_until: null }];
+  T.payments.push(
+    { reference: 'AKW_MAN_1', driver_id: 'd1', method: 'mtn', status: 'success', amount_pesewas: 10000, paid_at: '2026-10-01T10:00:00Z', created_at: '2026-10-01T09:00:00Z', reviewed_by: 's1', reviewed_at: '2026-10-01T10:00:00Z', manual_txn_id: 'TX1' },
+    { reference: 'AKW_SUB_2', driver_id: 'd1', method: 'paystack', status: 'success', amount_pesewas: 10000, paid_at: '2026-09-01T10:00:00Z', created_at: '2026-09-01T10:00:00Z' });
+  const out = await (await staffList(new Request('http://x/api'))).json();
+  const hist = out.drivers[0].payments;
+  assert.equal(hist.length, 2);
+  assert.equal(hist.find((h) => h.method === 'mtn').reviewed_by, 'astrovenzav@gmail.com');
+  assert.equal(hist.find((h) => h.method === 'paystack').reviewed_by, null);
+  assert.equal(hist[0].driver_id, undefined);
 });

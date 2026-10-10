@@ -1,4 +1,4 @@
-import { loadConfig, ghs, esc, waLink, telLink } from '/common.js';
+import { loadConfig, ghs, esc, waLink, telLink, subStatus, fmtDay } from '/common.js';
 
 const $ = (s) => document.querySelector(s);
 const STEPS = {
@@ -110,22 +110,28 @@ function accountBox(a) {
 
 function renderSub() {
   const d = data.driver;
-  const until = d.sub_until ? new Date(d.sub_until) : null;
-  const active = d.subscription_active;
+  const st = subStatus(d.sub_until);
   const pay = data.payment || { accounts: [], last_claim: null };
   const waiting = pay.last_claim?.status === 'submitted';
   const canPay = d.status === 'approved';
-  $('#subCard').className = 'sub' + (active ? '' : ' expired');
+  const left = st.days === 1 ? '1 day left' : `${st.days} days left`;
+  const headline = { active: `Active · ${left}`, soon: `Ends soon · ${left}`, expired: 'Expired', never: 'Not active' }[st.state];
+  const detail = {
+    active: `Paid until ${fmtDay(st.until)}. You keep 100% of every fare.`,
+    soon: `Your subscription ends on ${fmtDay(st.until)}. Renew now so your pickups do not stop. Paying early adds 30 days on top of the days you have left.`,
+    expired: `Your subscription ended on ${st.until ? fmtDay(st.until) : ''}. You will not receive new pickups until you pay again. Pickups already booked for you stay.`,
+    never: 'You will not receive pickups until you pay.'
+  }[st.state];
+  $('#subCard').className = 'sub ' + (st.state === 'never' ? 'expired' : st.state);
   $('#subCard').innerHTML = `<div style="display:grid;gap:2px">
-      <span class="label">Monthly subscription · GHS 100</span>
-      <strong style="font-family:var(--display);font-size:22px;text-transform:uppercase">${active ? 'Active' : 'Not active'}</strong>
-      <span class="hint">${active ? `Paid until ${fmtDate(until)}. You keep 100% of every fare.`
-        : 'You will not receive pickups until you pay.'}${d.status === 'pending_review'
+      <span class="label">Monthly subscription · GHS 100 for 30 days</span>
+      <strong style="font-family:var(--display);font-size:22px;text-transform:uppercase">${headline}</strong>
+      <span class="hint">${detail}${d.status === 'pending_review'
         ? ' Your application is waiting for approval. Contact astrovenzav@gmail.com to arrange your document check; you can pay once approved.'
         : d.status === 'suspended' ? ' Your account is suspended. Contact astrovenzav@gmail.com.' : ''}</span>
     </div>
     <div style="display:grid;gap:8px">
-      <button class="btn ${active ? 'btn-ghost' : 'btn-sign'}" id="payBtn" type="button" ${canPay ? '' : 'disabled'}>${active ? 'Pay next month' : 'Pay GHS 100'} with Paystack</button>
+      <button class="btn ${st.state === 'active' ? 'btn-ghost' : 'btn-sign'}" id="payBtn" type="button" ${canPay ? '' : 'disabled'}>${st.state === 'active' ? 'Pay next month' : st.state === 'soon' ? 'Renew now' : 'Pay GHS 100'} with Paystack</button>
       ${canPay && pay.accounts.length && !waiting ? '<button class="btn btn-ghost" id="directBtn" type="button">Pay directly by MoMo or bank</button>' : ''}
     </div>`;
   $('#claimNote').innerHTML = claimNote(pay.last_claim);
